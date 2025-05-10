@@ -96,17 +96,15 @@ def bbox_is_in_line(bbox: BoundingBox, line: List[BoundingBox]) -> bool:
 
 def group_in_lines(bboxes: List[BoundingBox]):
 
-    lines: LineOfBBoxes = []
+    lines: List[LineOfBBoxes] = []
 
     for bbox in bboxes:
-        line_number = None
-        for idx, line in enumerate(lines):
+        for line in lines:
             if bbox_is_in_line(bbox, line):
-                line_number = idx
-
-        if line_number is not None:
-            lines[line_number].append(bbox)
+                line.append(bbox)
+                break
         else:
+            # No line found, create a new one
             lines.append([bbox])
 
     return lines
