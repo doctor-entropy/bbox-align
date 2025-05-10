@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Optional, Union
 from geometry import Number, Point, Line
 
 Coords = Tuple[Number, Number]
@@ -10,7 +10,7 @@ class BoundingBox:
     Assign rectangle points in a clockwise manner
     top-left, top-right, bottom-right, bottom-left order
     '''
-    def __init__(self, p1: Coords, p2: Coords, p3: Coords, p4: Coords, word: str):
+    def __init__(self, p1: Coords, p2: Coords, p3: Coords, p4: Coords, word: Optional[str]):
 
         self._p1 = Point(*p1)
         self._p2 = Point(*p2)
@@ -44,10 +44,10 @@ class BoundingBox:
         (dw2, _) = dp4.co_ordinates
         self.w_avg = (abs(dw1) + abs(dw2)) / 2
 
-        self._word = word
+        self._word = word if word else None
 
     @property
-    def word(self):
+    def word(self) -> Union[str, None]:
 
         return self._word
 
@@ -56,8 +56,6 @@ class BoundingBox:
         return self.midpoint.is_left_of(other.midpoint)
 
     def __str__(self) -> str:
-
-        return self._word
 
         return f"{self._p1}, {self._p2}\n{self._p4}, {self._p3}"
 

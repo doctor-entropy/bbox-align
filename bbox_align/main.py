@@ -4,7 +4,7 @@ from math import radians, tan
 
 from copy import copy
 
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from geometry import Line
 from bounding_box import Coords, BoundingBox
 
@@ -16,7 +16,8 @@ Vertices = Tuple[
     Coords,
     Coords,
     Coords,
-    Coords
+    Coords,
+    Optional[str],
 ]
 
 BBoxVertices = List[Vertices]
@@ -133,7 +134,7 @@ if __name__ == "__main__":
     ocr_text = annotations['ocr_text']
     bounding_boxes_annotation = ocr_text[1::]
 
-    def vertices_to_tuples(verts, word):
+    def vertices_to_tuples(verts, word: str):
 
         return (
             (verts[0]['x'], verts[0]['y']),
