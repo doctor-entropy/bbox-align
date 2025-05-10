@@ -10,7 +10,7 @@ class BoundingBox:
     Assign rectangle points in a clockwise manner
     top-left, top-right, bottom-right, bottom-left order
     '''
-    def __init__(self, p1: Coords, p2: Coords, p3: Coords, p4: Coords, word: Optional[str]):
+    def __init__(self, p1: Coords, p2: Coords, p3: Coords, p4: Coords, idx: Optional[int]):
 
         self._p1 = Point(*p1)
         self._p2 = Point(*p2)
@@ -44,12 +44,12 @@ class BoundingBox:
         (dw2, _) = dp4.co_ordinates
         self.w_avg = (abs(dw1) + abs(dw2)) / 2
 
-        self._word = word if word else None
+        self._index = idx
 
     @property
-    def word(self) -> Union[str, None]:
+    def idx(self) -> Union[int, None]:
 
-        return self._word
+        return self._index
 
     def __lt__(self, other: "BoundingBox"):
 

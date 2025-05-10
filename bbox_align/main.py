@@ -2,7 +2,7 @@ import os
 import json
 from math import radians, tan
 
-from copy import copy
+from collections import namedtuple
 
 from typing import List, Tuple, Optional
 from geometry import Line
@@ -17,7 +17,7 @@ Vertices = Tuple[
     Coords,
     Coords,
     Coords,
-    Optional[str],
+    Optional[int],
 ]
 
 BBoxVertices = List[Vertices]
@@ -32,7 +32,7 @@ def to_bbox_object(bbox: Vertices) -> BoundingBox:
         p2=bbox[1],
         p3=bbox[2],
         p4=bbox[3],
-        word=bbox[4],
+        idx=bbox[4],
     )
 
 '''
@@ -110,18 +110,19 @@ def group_in_lines(bboxes: List[BoundingBox]):
 
     return lines
 
-def process(vertices: BBoxVertices):
+def process(vertices: BBoxVertices, words: Optional[List[str]]):
 
-    bboxes = list(map(
-        lambda bbox: to_bbox_object(bbox),
-        vertices
-    ))
+    bboxes = [
+        to_bbox_object(vertex)
+        for vertex in vertices
+    ]
 
     lines = group_in_lines(bboxes)
 
-    for line in lines:
-        words = [bbox.word for bbox in line]
-        print(' '.join(words))
+    if words:
+        for line in lines:
+            wrds = [words[bbox.idx] for bbox in line]
+            print(' '.join(wrds))
 
 
 if __name__ == "__main__":
@@ -134,23 +135,21 @@ if __name__ == "__main__":
     ocr_text = annotations['ocr_text']
     bounding_boxes_annotation = ocr_text[1::]
 
-    def vertices_to_tuples(verts, word: str):
+    def vertices_to_tuples(verts, idx: int):
 
         return (
             (verts[0]['x'], verts[0]['y']),
             (verts[1]['x'], verts[1]['y']),
             (verts[2]['x'], verts[2]['y']),
             (verts[3]['x'], verts[3]['y']),
-            word,
+            idx,
         )
 
+    vertices: BBoxVertices = [
+        vertices_to_tuples(x['boundingPoly']['vertices'], idx)
+        for idx, x in enumerate(bounding_boxes_annotation)
+    ]
 
-    vertices: BBoxVertices = list(map(
-        lambda x: vertices_to_tuples(
-            x['boundingPoly']['vertices'],
-            x['description']
-        ),
-        bounding_boxes_annotation
-    ))
+    words = [x['description'] for x in bounding_boxes_annotation]
 
-    process(vertices)
+    process(vertices, words)
