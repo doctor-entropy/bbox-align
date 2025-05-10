@@ -21,6 +21,8 @@ Vertices = Tuple[
 
 BBoxVertices = List[Vertices]
 
+LineOfBBoxes = List[BoundingBox]
+
 
 def to_bbox_object(bbox: Vertices) -> BoundingBox:
 
@@ -94,7 +96,7 @@ def bbox_is_in_line(bbox: BoundingBox, line: List[BoundingBox]) -> bool:
 
 def group_in_lines(bboxes: List[BoundingBox]):
 
-    lines = []
+    lines: LineOfBBoxes = []
 
     for bbox in bboxes:
         line_number = None
@@ -102,7 +104,7 @@ def group_in_lines(bboxes: List[BoundingBox]):
             if bbox_is_in_line(bbox, line):
                 line_number = idx
 
-        if line_number:
+        if line_number is not None:
             lines[line_number].append(bbox)
         else:
             lines.append([bbox])
@@ -131,7 +133,7 @@ if __name__ == "__main__":
         annotations = json.load(j)
 
     ocr_text = annotations['ocr_text']
-    bounding_boxes_annotation = ocr_text[1:3]
+    bounding_boxes_annotation = ocr_text[1::]
 
     def vertices_to_tuples(verts, word):
 
