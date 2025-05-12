@@ -127,7 +127,7 @@ def process(vertices: BBoxVertices, words: Optional[List[str]]):
 
 if __name__ == "__main__":
 
-    data_path = '../datasets/1000-receipt_ocr.json'
+    data_path = '../datasets/1018-receipt_ocr.json'
 
     with open(data_path, 'r') as j:
         annotations = json.load(j)

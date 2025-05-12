@@ -9,6 +9,8 @@ dependencies = []
 [dependency-groups]
 dev = [
     "ipython>=8.12.3",
+    "jupyterlab>=4.3.7",
     "mypy>=1.14.1",
+    "pillow>=10.4.0",
     "ruff>=0.11.8",
 ]

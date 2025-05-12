@@ -1,4 +1,4 @@
-from math import inf
+from math import inf, atan, degrees, radians
 from typing import Union, Tuple
 
 Number = Union[float, int]
@@ -140,6 +140,13 @@ class Line:
 
         return p.distance_to_line(self)
 
+    def find_x(self, y: Number) -> Number:
+
+        try:
+            return (y - self._c) / self._m
+        except ZeroDivisionError:
+            return inf
+
     def find_y(self, x: Number) -> Number:
 
         return self._m * x + self._c
@@ -168,3 +175,40 @@ class Line:
             x0, y0 = inf, inf
 
         return x0, y0
+
+    def angle_of_intersection(self, l2: "Line") -> float:
+        '''
+        Calculates the angle of intersection between two lines in degrees.
+        Returns the acute angle between the lines.
+        '''
+        try:
+            # Slopes of the two lines
+            m1 = self._m
+            m2 = l2._m
+
+            # Formula for angle between two lines: tan(theta) = |(m2 - m1) / (1 + m1 * m2)|
+            tan_theta = abs((m2 - m1) / (1 + m1 * m2))
+            theta = atan(tan_theta)  # Angle in radians
+
+            return degrees(theta)  # Convert to degrees
+        except ZeroDivisionError:
+            # Handle the case where lines are perpendicular
+            return 90.0
+        # try:
+        #     m1 = self._m
+        #     m2 = l2._m
+
+        #     # Formula for angle between two lines:
+        #     # tan(theta) = |(m2 - m1) / (1 + m1 * m2)|
+        #     tan_theta = (m2 - m1) / (1 + m1 * m2)
+        #     theta = atan(tan_theta)  # Angle in radians
+
+        #     angle = degrees(theta)
+
+        #     if angle < 0:
+        #         angle += 180
+
+        #     return angle
+        # except ZeroDivisionError:
+        #     # Handle the case where lines are perpendicular
+        #     return 90.0
