@@ -45,6 +45,10 @@ class Point:
 
         return f"({self._x}, {self._y})"
 
+    def __repr__(self) -> str:
+
+        return self.__str__()
+
     def is_above(self, other: "Point") -> bool:
 
         return self._y > other.y
@@ -178,7 +182,7 @@ class Line:
 
             x0, y0 = inf, inf
 
-        return x0, y0
+        return Point(x0, y0)
 
     def reflect_point(self, p: Point) -> Point:
         """

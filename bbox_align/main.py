@@ -1,11 +1,11 @@
 import os
 import json
-from math import radians, tan
+from math import radians, tan, inf
 
 from collections import namedtuple
 
 from typing import List, Tuple, Optional
-from geometry import Line
+from geometry import Line, Point, Number
 from bounding_box import Coords, BoundingBox
 
 
@@ -110,12 +110,71 @@ def group_in_lines(bboxes: List[BoundingBox]):
 
     return lines
 
-def process(vertices: BBoxVertices, words: Optional[List[str]]):
+def is_point_in_polygon(point: Point, polygon: List[Point]) -> bool:
+    """
+    Check if a point is inside a polygon using the ray-casting algorithm.
+
+    :param point: The point to check (x, y).
+    :param polygon: A tuple of four points representing the polygon (x, y).
+    :return: True if the point is inside the polygon, False otherwise.
+    """
+    x, y = point.co_ordinates
+    n = len(polygon)
+    inside = False
+
+    px, py = polygon[-1].co_ordinates  # Start with the last vertex
+    for i in range(n):
+        qx, qy = polygon[i].co_ordinates
+        if ((py > y) != (qy > y)) and (x < (qx - px) * (y - py) / (qy - py) + px):
+            inside = not inside
+        px, py = qx, qy
+
+    return inside
+
+def get_point_of_intersections(
+    bboxes: List[BoundingBox], endpoints: List[Point]
+):
+
+    n = len(bboxes)
+    points_of_intersection = [[None for _ in range(n)] for _ in range(n)]
+
+    for bbox1 in bboxes:
+        idx1 = bbox1.idx
+        line1 = Line(
+            p=bbox1.midpoint,
+            m=bbox1.approx_orientation
+        )
+        for bbox2 in bboxes:
+            idx2 = bbox2.idx
+            line2 = Line(
+                p=bbox2.midpoint,
+                m=bbox2.approx_orientation
+            )
+
+            if (idx1 == idx2):
+                continue
+
+            poi = line1.point_of_intersection(line2)
+            print(poi)
+            if is_point_in_polygon(poi, endpoints):
+                points_of_intersection[idx1][idx2] = poi
+
+    return points_of_intersection
+
+
+def process(
+    vertices: BBoxVertices,
+    words: Optional[List[str]],
+    endpoints: List[Tuple[Number, Number]],
+):
 
     bboxes = [
         to_bbox_object(vertex)
         for vertex in vertices
     ]
+
+    endpoints = [Point(*point) for point in endpoints]
+    pois = get_point_of_intersections(bboxes, endpoints)
 
     lines = group_in_lines(bboxes)
 
@@ -152,4 +211,4 @@ if __name__ == "__main__":
 
     words = [x['description'] for x in bounding_boxes_annotation]
 
-    process(vertices, words)
+    process(vertices, words, [(0, 0), (670, 0), (670, 1000), (0, 1000)])
