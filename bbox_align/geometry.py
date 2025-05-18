@@ -102,6 +102,10 @@ class Point:
 
         return abs(A*self._x + B*self._y + C) / (A**2 + B**2) ** 0.5
 
+    def reflect_on_line(self, l: "Line") -> "Point":
+
+        return l.reflect_point(self)
+
 
 class Line:
 
@@ -176,39 +180,24 @@ class Line:
 
         return x0, y0
 
-    def angle_of_intersection(self, l2: "Line") -> float:
-        '''
-        Calculates the angle of intersection between two lines in degrees.
-        Returns the acute angle between the lines.
-        '''
-        try:
-            # Slopes of the two lines
-            m1 = self._m
-            m2 = l2._m
+    def reflect_point(self, p: Point) -> Point:
+        """
+        Reflects a point across the line.
 
-            # Formula for angle between two lines: tan(theta) = |(m2 - m1) / (1 + m1 * m2)|
-            tan_theta = abs((m2 - m1) / (1 + m1 * m2))
-            theta = atan(tan_theta)  # Angle in radians
+        :param p: The point to reflect.
+        :return: The reflected point.
+        """
+        # Line coefficients: Ax + By + C = 0
+        A, B, C = self.standard_form_coeffs
 
-            return degrees(theta)  # Convert to degrees
-        except ZeroDivisionError:
-            # Handle the case where lines are perpendicular
-            return 90.0
-        # try:
-        #     m1 = self._m
-        #     m2 = l2._m
+        # Coordinates of the point
+        x1, y1 = p.co_ordinates
 
-        #     # Formula for angle between two lines:
-        #     # tan(theta) = |(m2 - m1) / (1 + m1 * m2)|
-        #     tan_theta = (m2 - m1) / (1 + m1 * m2)
-        #     theta = atan(tan_theta)  # Angle in radians
+        # Formula for reflection:
+        # x' = x - 2 * A * (A*x + B*y + C) / (A^2 + B^2)
+        # y' = y - 2 * B * (A*x + B*y + C) / (A^2 + B^2)
+        denom = A**2 + B**2
+        x_reflected = x1 - 2 * A * (A * x1 + B * y1 + C) / denom
+        y_reflected = y1 - 2 * B * (A * x1 + B * y1 + C) / denom
 
-        #     angle = degrees(theta)
-
-        #     if angle < 0:
-        #         angle += 180
-
-        #     return angle
-        # except ZeroDivisionError:
-        #     # Handle the case where lines are perpendicular
-        #     return 90.0
+        return Point(x_reflected, y_reflected)
