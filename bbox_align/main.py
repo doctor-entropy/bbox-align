@@ -144,23 +144,16 @@ def get_point_of_intersections(
         [None for _ in range(n)] for _ in range(n)
     ]
 
-    for bbox1 in bboxes:
-        idx1 = bbox1.idx
+    for idx1, bbox1 in enumerate(bboxes):
         line1 = Line(
             p=bbox1.midpoint,
             m=bbox1.approx_orientation
         )
-        for bbox2 in bboxes:
-            idx2 = bbox2.idx
+        for idx2, bbox2 in enumerate(bboxes):
             line2 = Line(
                 p=bbox2.midpoint,
                 m=bbox2.approx_orientation
             )
-
-            if idx1 is None or idx2 is None:
-                raise ValueError(
-                    "BoundingBox index (idx1, idx) cannot be None"
-                )
 
             if (idx1 == idx2):
                 continue
