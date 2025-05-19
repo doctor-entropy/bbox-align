@@ -2,8 +2,6 @@ import os
 import json
 from math import radians, tan, inf
 
-from collections import namedtuple
-
 from typing import List, Tuple, Optional, Union
 from geometry import Line, Point, Number
 from bounding_box import Coords, BoundingBox
@@ -144,12 +142,14 @@ def get_point_of_intersections(
         [None for _ in range(n)] for _ in range(n)
     ]
 
-    for idx1, bbox1 in enumerate(bboxes):
+    for idx1 in range(n):
+        bbox1 = bboxes[idx1]
         line1 = Line(
             p=bbox1.midpoint,
             m=bbox1.approx_orientation
         )
-        for idx2, bbox2 in enumerate(bboxes):
+        for idx2 in range(idx1, n):
+            bbox2 = bboxes[idx2]
             line2 = Line(
                 p=bbox2.midpoint,
                 m=bbox2.approx_orientation
@@ -161,6 +161,7 @@ def get_point_of_intersections(
             poi = line1.point_of_intersection(line2)
             if is_point_in_polygon(poi, endpoints):
                 points_of_intersection[idx1][idx2] = poi
+                points_of_intersection[idx2][idx1] = poi
 
     return points_of_intersection
 
@@ -178,6 +179,7 @@ def process(
 
     _endpoints = [Point(*point) for point in endpoints]
     pois = get_point_of_intersections(bboxes, _endpoints)
+    print(pois)
 
     lines = group_in_lines(bboxes)
 
