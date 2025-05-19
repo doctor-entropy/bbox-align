@@ -5,4 +5,4 @@
 ## Concept
 Two bounding boxes are considered inline if the y-coordinate of one box's vertical center lies within the top and bottom bounds of the other box.
 
-![parallel](./images/parallel.png)
+<img src="./images/parallel.png" alt="parallel" style="width:1000px;"/>
