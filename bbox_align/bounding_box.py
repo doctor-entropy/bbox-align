@@ -1,5 +1,5 @@
 from typing import Tuple, Optional, Union
-from geometry import Number, Point, Line
+from geometry import Number, Point
 
 Coords = Tuple[Number, Number]
 

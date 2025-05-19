@@ -1,4 +1,3 @@
-import os
 import json
 from math import radians, tan, inf
 
@@ -82,7 +81,7 @@ line 'l' and 'm2'.
 
 m1 and m2 are the midpoints of the boxes shown above
 '''
-def is_inline(rect1: BoundingBox, rect2:  BoundingBox):
+def get_inlines(rect1: BoundingBox, rect2:  BoundingBox):
 
     m1 = rect1.approx_orientation
     m2 = rect2.approx_orientation
@@ -250,7 +249,7 @@ def process(
     pois = get_point_of_intersections(bboxes, _endpoints)
     # print(pois)
 
-    inlines = is_inline(bboxes, pois)
+    inlines = get_inlines(bboxes, pois)
     print(inlines)
 
     # lines = group_in_lines(bboxes)
