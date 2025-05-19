@@ -167,7 +167,7 @@ class Line:
 
         return y_bar - y
 
-    def point_of_intersection(self, l2: "Line") -> Tuple[float, float]:
+    def point_of_intersection(self, l2: "Line") -> Point:
 
         A1, B1, C1 = self.standard_form_coeffs
         A2, B2, C2 = l2.standard_form_coeffs

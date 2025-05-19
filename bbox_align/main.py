@@ -4,7 +4,7 @@ from math import radians, tan, inf
 
 from collections import namedtuple
 
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Union
 from geometry import Line, Point, Number
 from bounding_box import Coords, BoundingBox
 
@@ -23,6 +23,10 @@ Vertices = Tuple[
 BBoxVertices = List[Vertices]
 
 LineOfBBoxes = List[BoundingBox]
+
+PointOfIntersections = List[
+    List[Union[Point, None]]
+]
 
 
 def to_bbox_object(bbox: Vertices) -> BoundingBox:
@@ -133,10 +137,12 @@ def is_point_in_polygon(point: Point, polygon: List[Point]) -> bool:
 
 def get_point_of_intersections(
     bboxes: List[BoundingBox], endpoints: List[Point]
-):
+) -> PointOfIntersections:
 
     n = len(bboxes)
-    points_of_intersection = [[None for _ in range(n)] for _ in range(n)]
+    points_of_intersection: PointOfIntersections = [
+        [None for _ in range(n)] for _ in range(n)
+    ]
 
     for bbox1 in bboxes:
         idx1 = bbox1.idx
@@ -151,11 +157,15 @@ def get_point_of_intersections(
                 m=bbox2.approx_orientation
             )
 
+            if idx1 is None or idx2 is None:
+                raise ValueError(
+                    "BoundingBox index (idx1, idx) cannot be None"
+                )
+
             if (idx1 == idx2):
                 continue
 
             poi = line1.point_of_intersection(line2)
-            print(poi)
             if is_point_in_polygon(poi, endpoints):
                 points_of_intersection[idx1][idx2] = poi
 
@@ -173,8 +183,8 @@ def process(
         for vertex in vertices
     ]
 
-    endpoints = [Point(*point) for point in endpoints]
-    pois = get_point_of_intersections(bboxes, endpoints)
+    _endpoints = [Point(*point) for point in endpoints]
+    pois = get_point_of_intersections(bboxes, _endpoints)
 
     lines = group_in_lines(bboxes)
 
