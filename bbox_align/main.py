@@ -6,6 +6,8 @@ from typing import List, Tuple, Optional, Union
 from geometry import Line, Point, Number
 from bounding_box import Coords, BoundingBox
 
+from vector import get_vector_between_two_points
+
 
 SLOPE_TOLERANCE_IN_DEGREES = 3
 SLOPE_TOLERANCE = tan(radians(SLOPE_TOLERANCE_IN_DEGREES))
@@ -37,6 +39,16 @@ def to_bbox_object(bbox: Vertices) -> BoundingBox:
         idx=bbox[4],
     )
 
+def bboxes_inline(
+    bbox1: BoundingBox, bbox2: BoundingBox
+) -> Tuple[bool, float]:
+    l1 = Line(bbox1.midpoint, bbox1.approx_orientation)
+    d = l1.distance_to_point(bbox2.midpoint)
+    is_inline = d <= bbox2.average_height/2
+
+    return (is_inline, d)
+
+
 '''
 Two boxes - box1 and box2 are said to be parallel
 if the line passing through the midpoint of box1
@@ -46,9 +58,7 @@ In other words the line passes through the second boundingbox
 '''
 def _parallel(bbox1: BoundingBox, bbox2: BoundingBox):
 
-    l = Line(bbox1.midpoint, bbox1.approx_orientation)
-    d = l.distance_to_point(bbox2.midpoint)
-
+    (_, d) = bboxes_inline(bbox1, bbox2)
     return d <= bbox2.average_height/2
 
 def parallel(bbox1, bbox2):
@@ -165,6 +175,65 @@ def get_point_of_intersections(
 
     return points_of_intersection
 
+def is_inline(bboxes: List[BoundingBox], pois: PointOfIntersections):
+
+    n = len(bboxes)
+
+    inline = [
+        [inf for _ in range(n)] for _ in range(n)
+    ]
+
+    for idx1 in range(n):
+        bbox1 = bboxes[idx1]
+
+        for idx2 in range(n):
+
+            if idx1 == idx2:
+                continue
+
+            poi = pois[idx1][idx2]
+            bbox2 = bboxes[idx2]
+
+            if poi is None:
+                (is_inline, d) = bboxes_inline(
+                    bbox1, bbox2
+                )
+                inline[idx1][idx2] = d if is_inline else inf
+            else:
+                vec_pq = get_vector_between_two_points(
+                    p=poi, q=bbox1.midpoint
+                )
+                vec_qr = get_vector_between_two_points(
+                    p=poi, q=bbox2.midpoint
+                )
+
+                unit_vec_pq = vec_pq.unit()
+                unit_vec_qr = vec_qr.unit()
+
+                # theta_between_vectors = unit_vec_pq.angle_between_vector(
+                #     unit_vec_qr
+                # )
+
+                resultant_vec_theta = (unit_vec_qr - unit_vec_pq).theta
+
+                lr = Line(
+                    p=poi,
+                    m=tan(radians(resultant_vec_theta))
+                )
+
+                reflected_bbox = BoundingBox(
+                    p1=lr.reflect_point(bbox1.p4).co_ordinates,
+                    p2=lr.reflect_point(bbox1.p3).co_ordinates,
+                    p3=lr.reflect_point(bbox1.p2).co_ordinates,
+                    p4=lr.reflect_point(bbox1.p1).co_ordinates,
+                    idx=None
+                )
+                (is_inline, d) = bboxes_inline(
+                    reflected_bbox, bbox2
+                )
+                inline[idx1][idx2] = d if is_inline else inf
+
+    return inline
 
 def process(
     vertices: BBoxVertices,
@@ -179,14 +248,17 @@ def process(
 
     _endpoints = [Point(*point) for point in endpoints]
     pois = get_point_of_intersections(bboxes, _endpoints)
-    print(pois)
+    # print(pois)
 
-    lines = group_in_lines(bboxes)
+    inlines = is_inline(bboxes, pois)
+    print(inlines)
 
-    if words:
-        for line in lines:
-            wrds = [words[bbox.idx] for bbox in line]
-            print(' '.join(wrds))
+    # lines = group_in_lines(bboxes)
+
+    # if words:
+    #     for line in lines:
+    #         wrds = [words[bbox.idx] for bbox in line]
+    #         print(' '.join(wrds))
 
 
 if __name__ == "__main__":
