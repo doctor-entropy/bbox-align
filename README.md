@@ -12,3 +12,9 @@
 Two bounding boxes are considered inline if the y-coordinate of one box's vertical center lies within the top and bottom bounds of the other box.
 
 <img src="./images/parallel.png" alt="parallel" style="width:1000px;"/>
+
+What if the bounding boxes are cross?
+<img src="./images/cross.png" alt="parallel" style="width:1000px;"/>
+
+Now the bounding boxes are reflected
+<img src="./images/reflected.png" alt="parallel" style="width:1000px;"/>
