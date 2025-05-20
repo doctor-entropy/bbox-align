@@ -99,27 +99,27 @@ def get_inlines(rect1: BoundingBox, rect2:  BoundingBox):
     else:
         return False
 
-def bbox_is_in_line(bbox: BoundingBox, line: List[BoundingBox]) -> bool:
+# def bbox_is_in_line(bbox: BoundingBox, line: List[BoundingBox]) -> bool:
 
-    return any(
-        is_inline(bbox, bbox2)
-        for bbox2 in line
-    )
+#     return any(
+#         is_inline(bbox, bbox2)
+#         for bbox2 in line
+#     )
 
-def group_in_lines(bboxes: List[BoundingBox]):
+# def group_in_lines(bboxes: List[BoundingBox]):
 
-    lines: List[LineOfBBoxes] = []
+#     lines: List[LineOfBBoxes] = []
 
-    for bbox in bboxes:
-        for line in lines:
-            if bbox_is_in_line(bbox, line):
-                line.append(bbox)
-                break
-        else:
-            # No line found, create a new one
-            lines.append([bbox])
+#     for bbox in bboxes:
+#         for line in lines:
+#             if bbox_is_in_line(bbox, line):
+#                 line.append(bbox)
+#                 break
+#         else:
+#             # No line found, create a new one
+#             lines.append([bbox])
 
-    return lines
+#     return lines
 
 def is_point_in_polygon(point: Point, polygon: List[Point]) -> bool:
     """
@@ -174,7 +174,52 @@ def get_point_of_intersections(
 
     return points_of_intersection
 
-def is_inline(bboxes: List[BoundingBox], pois: PointOfIntersections):
+def get_vertical_distance(
+    poi: Union[Point, None], # point of intersection
+    bbox1: BoundingBox,
+    bbox2: BoundingBox
+) -> float:
+
+    if poi is None:
+        (is_inline, d) = bboxes_inline(
+            bbox1, bbox2
+        )
+        return d if is_inline else inf
+    else:
+        vec_pq = get_vector_between_two_points(
+            p=poi, q=bbox1.midpoint
+        )
+        vec_qr = get_vector_between_two_points(
+            p=poi, q=bbox2.midpoint
+        )
+
+        unit_vec_pq = vec_pq.unit()
+        unit_vec_qr = vec_qr.unit()
+
+        # theta_between_vectors = unit_vec_pq.angle_between_vector(
+        #     unit_vec_qr
+        # )
+
+        resultant_vec_theta = (unit_vec_qr - unit_vec_pq).theta
+
+        lr = Line(
+            p=poi,
+            m=tan(radians(resultant_vec_theta))
+        )
+
+        reflected_bbox = BoundingBox(
+            p1=lr.reflect_point(bbox1.p4).co_ordinates,
+            p2=lr.reflect_point(bbox1.p3).co_ordinates,
+            p3=lr.reflect_point(bbox1.p2).co_ordinates,
+            p4=lr.reflect_point(bbox1.p1).co_ordinates,
+            idx=None
+        )
+        (is_inline, d) = bboxes_inline(
+            reflected_bbox, bbox2
+        )
+        return d if is_inline else inf
+
+def vertical_distances(bboxes: List[BoundingBox], pois: PointOfIntersections):
 
     n = len(bboxes)
 
@@ -193,44 +238,13 @@ def is_inline(bboxes: List[BoundingBox], pois: PointOfIntersections):
             poi = pois[idx1][idx2]
             bbox2 = bboxes[idx2]
 
-            if poi is None:
-                (is_inline, d) = bboxes_inline(
-                    bbox1, bbox2
-                )
-                inline[idx1][idx2] = d if is_inline else inf
-            else:
-                vec_pq = get_vector_between_two_points(
-                    p=poi, q=bbox1.midpoint
-                )
-                vec_qr = get_vector_between_two_points(
-                    p=poi, q=bbox2.midpoint
-                )
+            d = get_vertical_distance(
+                poi=poi,
+                bbox1=bbox1,
+                bbox2=bbox2
+            )
 
-                unit_vec_pq = vec_pq.unit()
-                unit_vec_qr = vec_qr.unit()
-
-                # theta_between_vectors = unit_vec_pq.angle_between_vector(
-                #     unit_vec_qr
-                # )
-
-                resultant_vec_theta = (unit_vec_qr - unit_vec_pq).theta
-
-                lr = Line(
-                    p=poi,
-                    m=tan(radians(resultant_vec_theta))
-                )
-
-                reflected_bbox = BoundingBox(
-                    p1=lr.reflect_point(bbox1.p4).co_ordinates,
-                    p2=lr.reflect_point(bbox1.p3).co_ordinates,
-                    p3=lr.reflect_point(bbox1.p2).co_ordinates,
-                    p4=lr.reflect_point(bbox1.p1).co_ordinates,
-                    idx=None
-                )
-                (is_inline, d) = bboxes_inline(
-                    reflected_bbox, bbox2
-                )
-                inline[idx1][idx2] = d if is_inline else inf
+            inline[idx1][idx2] = d
 
     return inline
 
@@ -249,7 +263,7 @@ def process(
     pois = get_point_of_intersections(bboxes, _endpoints)
     # print(pois)
 
-    inlines = get_inlines(bboxes, pois)
+    inlines = vertical_distances(bboxes, pois)
     print(inlines)
 
     # lines = group_in_lines(bboxes)
