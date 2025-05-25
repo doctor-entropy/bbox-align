@@ -129,6 +129,7 @@ def get_pois_and_passthroughs(
             )
 
             if (idx1 == idx2):
+                passthroughs[idx1][idx2] = True
                 continue
 
             poi = line1.point_of_intersection(line2)
@@ -193,6 +194,39 @@ def get_inlines(
 
     return inlines
 
+def trace_trues(inlines: List[List[bool]], start_idx: int, visited: Optional[set] = None) -> List[int]:
+
+    if visited is None:
+        visited = set()
+
+    # Add the current index to the visited set
+    visited.add(start_idx)
+
+    # Get the row corresponding to the current index
+    row = inlines[start_idx]
+
+    # Iterate through the row to find connected indices
+    for idx, is_true in enumerate(row):
+        if is_true and idx not in visited:
+            trace_trues(inlines, idx, visited)
+
+    return list(visited)
+
+def get_lines(inlines: InLines):
+
+    n = len(inlines)
+    lines = []
+    visited = set()
+
+    while len(visited) < n:
+
+        next_idx = next(idx for idx in range(n) if idx not in visited)
+        line = trace_trues(inlines, next_idx)
+        visited.update(line)
+        lines.append(line)
+
+    return lines
+
 def process(
     vertices: BBoxVertices,
     words: Optional[List[str]],
@@ -210,7 +244,10 @@ def process(
     )
 
     inlines = get_inlines(bboxes, pois, passthroughs)
-    print(inlines)
+    # print(inlines)
+
+    lines = get_lines(inlines)
+    print(lines)
     # print(pois)
     # print(passthroughs)
 
@@ -219,10 +256,10 @@ def process(
 
     # lines = group_in_lines(bboxes)
 
-    # if words:
-    #     for line in lines:
-    #         wrds = [words[bbox.idx] for bbox in line]
-    #         print(' '.join(wrds))
+    if words:
+        for line in lines:
+            wrds = [words[idx] for idx in line]
+            print(' '.join(wrds))
 
 
 if __name__ == "__main__":
