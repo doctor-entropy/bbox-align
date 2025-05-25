@@ -1,11 +1,10 @@
 import json
+from copy import deepcopy
 from math import radians, tan, inf
 
 from typing import List, Tuple, Optional, Union
 from geometry import Line, Point, Number
 from bounding_box import Coords, BoundingBox
-
-from vector import get_vector_between_two_points
 
 
 SLOPE_TOLERANCE_IN_DEGREES = 3
@@ -27,6 +26,14 @@ PointOfIntersections = List[
     List[Union[Point, None]]
 ]
 
+PassThroughs = List[
+    List[bool]
+]
+
+InLines = List[
+    List[bool]
+]
+
 
 def to_bbox_object(bbox: Vertices) -> BoundingBox:
 
@@ -37,35 +44,6 @@ def to_bbox_object(bbox: Vertices) -> BoundingBox:
         p4=bbox[3],
         idx=bbox[4],
     )
-
-def bboxes_inline(
-    bbox1: BoundingBox, bbox2: BoundingBox
-) -> Tuple[bool, float]:
-    l1 = Line(bbox1.midpoint, bbox1.approx_orientation)
-    d = l1.distance_to_point(bbox2.midpoint)
-    is_inline = d <= bbox2.average_height/2
-
-    return (is_inline, d)
-
-
-'''
-Two boxes - box1 and box2 are said to be parallel
-if the line passing through the midpoint of box1
-and the perpendicular distance from the midpoint
-of box2 is less than half of average height of the latter.
-In other words the line passes through the second boundingbox
-'''
-def _parallel(bbox1: BoundingBox, bbox2: BoundingBox):
-
-    (_, d) = bboxes_inline(bbox1, bbox2)
-    return d <= bbox2.average_height/2
-
-def parallel(bbox1, bbox2):
-
-    return any((
-        _parallel(bbox1, bbox2),
-        _parallel(bbox2, bbox1)
-    ))
 
 '''
 -------------           -------------
@@ -81,45 +59,28 @@ line 'l' and 'm2'.
 
 m1 and m2 are the midpoints of the boxes shown above
 '''
-def get_inlines(rect1: BoundingBox, rect2:  BoundingBox):
+def is_passing_through(
+    bbox1: BoundingBox, bbox2: BoundingBox
+) -> Tuple[bool, float]:
+    l1 = Line(bbox1.midpoint, bbox1.approx_orientation)
+    d = l1.distance_to_point(bbox2.midpoint)
+    is_inline = d <= bbox2.average_height/2
 
-    m1 = rect1.approx_orientation
-    m2 = rect2.approx_orientation
+    return (is_inline, d)
 
-    # comparing boxes that are of same orientation
-    # else they MAY not be in the same line
-    # skewed boxes (due to folds, crinkles) are addressed
-    # in the next step
-    if  abs(m1 - m2) <= SLOPE_TOLERANCE and \
-        parallel(rect1, rect2):
-        # if the line passes through the rectangle
-        # then we assume that the boxes are parallel
-        # to eachother and hence in the same line
-        return True
-    else:
-        return False
+'''
+Two boxes - box1 and box2 are said to passthrough
+if the line passing through the midpoint of box1
+and the perpendicular distance from the midpoint
+of box2 is less than half of average height of the latter.
+In other words the line passes through the second boundingbox
+'''
+def any_passing_through(bbox1: BoundingBox, bbox2: BoundingBox) -> Tuple[bool, float]:
 
-# def bbox_is_in_line(bbox: BoundingBox, line: List[BoundingBox]) -> bool:
+    (passes12, d12) = is_passing_through(bbox1, bbox2)
+    (passes21, d21) = is_passing_through(bbox2, bbox1)
 
-#     return any(
-#         is_inline(bbox, bbox2)
-#         for bbox2 in line
-#     )
-
-# def group_in_lines(bboxes: List[BoundingBox]):
-
-#     lines: List[LineOfBBoxes] = []
-
-#     for bbox in bboxes:
-#         for line in lines:
-#             if bbox_is_in_line(bbox, line):
-#                 line.append(bbox)
-#                 break
-#         else:
-#             # No line found, create a new one
-#             lines.append([bbox])
-
-#     return lines
+    return (passes12 or passes21, (d12 + d21) / 2)
 
 def is_point_in_polygon(point: Point, polygon: List[Point]) -> bool:
     """
@@ -142,13 +103,16 @@ def is_point_in_polygon(point: Point, polygon: List[Point]) -> bool:
 
     return inside
 
-def get_point_of_intersections(
+def get_pois_and_passthroughs(
     bboxes: List[BoundingBox], endpoints: List[Point]
-) -> PointOfIntersections:
+) -> Tuple[PointOfIntersections, PassThroughs]:
 
     n = len(bboxes)
     points_of_intersection: PointOfIntersections = [
         [None for _ in range(n)] for _ in range(n)
+    ]
+    passthroughs: PassThroughs = [
+        [False for _ in range(n)] for _ in range(n)
     ]
 
     for idx1 in range(n):
@@ -172,81 +136,62 @@ def get_point_of_intersections(
                 points_of_intersection[idx1][idx2] = poi
                 points_of_intersection[idx2][idx1] = poi
 
-    return points_of_intersection
+            (passes, _) = any_passing_through(bbox1, bbox2)
+            if passes:
+                passthroughs[idx1][idx2] = True
+                passthroughs[idx2][idx1] = True
 
-def get_vertical_distance(
-    poi: Union[Point, None], # point of intersection
-    bbox1: BoundingBox,
-    bbox2: BoundingBox
+
+    return points_of_intersection, passthroughs
+
+def sum_vertical_distances(
+    bbox1: BoundingBox, bbox2: BoundingBox, poi: Point
 ) -> float:
 
-    if poi is None:
-        (is_inline, d) = bboxes_inline(
-            bbox1, bbox2
-        )
-        return d if is_inline else inf
+    m1 = bbox1.midpoint
+    m2 = bbox2.midpoint
+
+    return abs((m1 - poi).y) + abs((m2 - poi).y)
+
+def safe_sum_vertical_distances(
+    bbox1: BoundingBox, bbox2: BoundingBox, poi: Union[Point, None]
+) -> float:
+
+    if poi is None or bbox1.idx == bbox2.idx:
+        return inf
     else:
-        vec_pq = get_vector_between_two_points(
-            p=poi, q=bbox1.midpoint
-        )
-        vec_qr = get_vector_between_two_points(
-            p=poi, q=bbox2.midpoint
-        )
+        return sum_vertical_distances(bbox1, bbox2, poi)
 
-        unit_vec_pq = vec_pq.unit()
-        unit_vec_qr = vec_qr.unit()
-
-        # theta_between_vectors = unit_vec_pq.angle_between_vector(
-        #     unit_vec_qr
-        # )
-
-        resultant_vec_theta = (unit_vec_qr - unit_vec_pq).theta
-
-        lr = Line(
-            p=poi,
-            m=tan(radians(resultant_vec_theta))
-        )
-
-        reflected_bbox = BoundingBox(
-            p1=lr.reflect_point(bbox1.p4).co_ordinates,
-            p2=lr.reflect_point(bbox1.p3).co_ordinates,
-            p3=lr.reflect_point(bbox1.p2).co_ordinates,
-            p4=lr.reflect_point(bbox1.p1).co_ordinates,
-            idx=None
-        )
-        (is_inline, d) = bboxes_inline(
-            reflected_bbox, bbox2
-        )
-        return d if is_inline else inf
-
-def vertical_distances(bboxes: List[BoundingBox], pois: PointOfIntersections):
+def get_inlines(
+    bboxes: List[BoundingBox],
+    pois: PointOfIntersections,
+    passthroughs: PassThroughs
+) -> InLines:
 
     n = len(bboxes)
 
-    inline = [
-        [inf for _ in range(n)] for _ in range(n)
-    ]
+    inlines: InLines = deepcopy(passthroughs)
 
-    for idx1 in range(n):
-        bbox1 = bboxes[idx1]
+    for idx in range(n):
 
-        for idx2 in range(n):
-
-            if idx1 == idx2:
-                continue
-
-            poi = pois[idx1][idx2]
-            bbox2 = bboxes[idx2]
-
-            d = get_vertical_distance(
-                poi=poi,
-                bbox1=bbox1,
-                bbox2=bbox2
+        point_of_intersections = pois[idx]
+        vertical_distances = [
+            safe_sum_vertical_distances(
+                bbox1=bboxes[idx],
+                bbox2=bboxes[_idx],
+                poi=poi
             )
+            for _idx, poi in enumerate(point_of_intersections)
+        ]
+        argmin_idx = min(
+            range(len(vertical_distances)),
+            key=vertical_distances.__getitem__
+        )
+        min_value = vertical_distances[argmin_idx]
+        if min_value != inf:
+            inlines[idx][argmin_idx] = True
 
-            inline[idx1][idx2] = d
-
-    return inline
+    return inlines
 
 def process(
     vertices: BBoxVertices,
@@ -260,11 +205,17 @@ def process(
     ]
 
     _endpoints = [Point(*point) for point in endpoints]
-    pois = get_point_of_intersections(bboxes, _endpoints)
-    # print(pois)
+    pois, passthroughs = get_pois_and_passthroughs(
+        bboxes, _endpoints
+    )
 
-    inlines = vertical_distances(bboxes, pois)
+    inlines = get_inlines(bboxes, pois, passthroughs)
     print(inlines)
+    # print(pois)
+    # print(passthroughs)
+
+    # inlines = vertical_distances(bboxes, pois)
+    # print(inlines)
 
     # lines = group_in_lines(bboxes)
 
