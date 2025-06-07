@@ -2,7 +2,7 @@ from math import inf
 from copy import deepcopy
 
 from typing import Tuple, List, Union, Optional
-from geometry import Point, Line
+from geometry import Point, Line as GeometryLine
 from bounding_box import BoundingBox
 
 
@@ -19,6 +19,9 @@ PassThroughs = List[
 InLines = List[
     List[bool]
 ]
+
+Line = List[int]
+
 
 
 '''
@@ -39,7 +42,7 @@ def is_passing_through(
     bbox1: BoundingBox, bbox2: BoundingBox, tolerance: float
 ) -> Tuple[bool, float]:
 
-    l1 = Line(bbox1.midpoint, bbox1.approx_orientation)
+    l1 = GeometryLine(bbox1.midpoint, bbox1.approx_orientation)
     d = l1.distance_to_point(bbox2.midpoint)
     is_inline = d <= (bbox2.average_height/2) * tolerance
 
@@ -93,13 +96,13 @@ def get_point_of_intersections(
 
     for idx1 in range(n):
         bbox1 = bboxes[idx1]
-        line1 = Line(
+        line1 = GeometryLine(
             p=bbox1.midpoint,
             m=bbox1.approx_orientation
         )
         for idx2 in range(idx1, n):
             bbox2 = bboxes[idx2]
-            line2 = Line(
+            line2 = GeometryLine(
                 p=bbox2.midpoint,
                 m=bbox2.approx_orientation
             )
@@ -130,7 +133,9 @@ def get_passthroughs(bboxes: List[BoundingBox], tolerance: float = 1) -> PassThr
                 passthroughs[idx1][idx2] = True
                 continue
 
-            (passes, _) = any_passing_through(bbox1, bbox2, tolerance)
+            (passes, _) = any_passing_through(
+                bbox1, bbox2, tolerance
+            )
             if passes:
                 passthroughs[idx1][idx2] = True
                 passthroughs[idx2][idx1] = True
@@ -194,7 +199,7 @@ def get_line(
     inlines: List[List[bool]],
     start_idx: int,
     visited: Optional[set] = None
-) -> List[int]:
+) -> Line:
 
     if visited is None:
         visited = set()

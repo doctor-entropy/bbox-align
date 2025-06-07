@@ -11,7 +11,8 @@ from relationships import (
     get_inlines,
     get_line,
     InLines,
-    PointOfIntersections
+    PointOfIntersections,
+    Line
 )
 
 Vertices = Tuple[
@@ -24,7 +25,7 @@ Vertices = Tuple[
 
 BBoxVertices = List[Vertices]
 
-Line = List[List[int]]
+Lines = List[Line]
 
 
 def to_bbox_object(bbox: Vertices) -> BoundingBox:
@@ -55,14 +56,23 @@ def get_overlaps(
     return overlaps
 
 def resolve_overlaps(
-    bboxes: List[BoundingBox], line: List[int], pois_subarray, tolerance
-) -> Line:
+    bboxes: List[BoundingBox], line: List[int], pois, tolerance
+) -> Lines:
 
     bboxes_subset = [bboxes[idx] for idx in line]
     new_passthroughs = get_passthroughs(bboxes_subset, tolerance)
 
-    new_inlines = get_inlines(bboxes_subset, pois_subarray, new_passthroughs)
-    non_overlap_lines = get_lines(new_inlines, bboxes_subset, pois_subarray, tolerance)
+    new_inlines = get_inlines(
+        bboxes_subset,
+        pois,
+        new_passthroughs
+    )
+    non_overlap_lines = get_lines(
+        new_inlines,
+        bboxes_subset,
+        pois,
+        tolerance
+    )
 
     for i, new_line in enumerate(non_overlap_lines):
         for j, idx in enumerate(new_line):
@@ -75,7 +85,7 @@ def get_lines(
     bboxes: List[BoundingBox],
     pois: PointOfIntersections,
     tolerance: float
-) -> Line:
+) -> Lines:
 
     n = len(inlines)
     lines = []
