@@ -2,8 +2,8 @@ from math import inf
 from copy import deepcopy
 
 from typing import Tuple, List, Union, Optional
-from geometry import Point, Line as GeometryLine
-from bounding_box import BoundingBox
+from bbox_align.geometry import Point, Line as GeometryLine
+from bbox_align.bounding_box import BoundingBox
 
 
 LineOfBBoxes = List[BoundingBox]
