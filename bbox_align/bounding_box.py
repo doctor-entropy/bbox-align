@@ -98,3 +98,29 @@ class BoundingBox:
     def average_width(self) -> float:
 
         return self.w_avg
+
+    def is_overlapping(self, other: "BoundingBox") -> Tuple[bool, float]:
+
+        # Extract coordinates for this bounding box
+        x1_min, _ = self._p1.co_ordinates
+        x1_max, _ = self._p3.co_ordinates
+
+        # Extract coordinates for the other bounding box
+        x2_min, _ = other._p1.co_ordinates
+        x2_max, _ = other._p3.co_ordinates
+
+        # Check for overlap
+        if x1_max < x2_min or x2_max < x1_min:
+            return False, 0.0
+
+        # Calculate the intersection width
+        overlap_width = max(0, min(x1_max, x2_max) - max(x1_min, x2_min))
+
+        # Calculate the percentage of overlap relative to the smaller box
+        bbox1_width = x1_max - x1_min
+        bbox2_width = x2_max - x2_min
+        smaller_width = min(bbox1_width, bbox2_width)
+
+        overlap_percentage = (overlap_width / smaller_width) * 100 if smaller_width > 0 else 0.0
+
+        return True, overlap_percentage
