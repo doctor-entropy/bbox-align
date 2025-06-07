@@ -1,6 +1,7 @@
 from math import inf
 from copy import deepcopy
-from typing import Tuple, List, Union
+
+from typing import Tuple, List, Union, Optional
 from geometry import Point, Line
 from bounding_box import BoundingBox
 
@@ -188,3 +189,25 @@ def get_inlines(
             inlines[idx][argmin_idx] = True
 
     return inlines
+
+def get_line(
+    inlines: List[List[bool]],
+    start_idx: int,
+    visited: Optional[set] = None
+) -> List[int]:
+
+    if visited is None:
+        visited = set()
+
+    # Add the current index to the visited set
+    visited.add(start_idx)
+
+    # Get the row corresponding to the current index
+    row = inlines[start_idx]
+
+    # Iterate through the row to find connected indices
+    for idx, is_true in enumerate(row):
+        if is_true and idx not in visited:
+            get_line(inlines, idx, visited)
+
+    return list(visited)

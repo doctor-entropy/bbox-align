@@ -9,6 +9,7 @@ from relationships import (
     get_point_of_intersections,
     get_passthroughs,
     get_inlines,
+    get_line,
     InLines,
     PointOfIntersections
 )
@@ -36,27 +37,6 @@ def to_bbox_object(bbox: Vertices) -> BoundingBox:
         idx=bbox[4],
     )
 
-def trace_trues(
-    inlines: List[List[bool]],
-    start_idx: int,
-    visited: Optional[set] = None
-) -> List[int]:
-
-    if visited is None:
-        visited = set()
-
-    # Add the current index to the visited set
-    visited.add(start_idx)
-
-    # Get the row corresponding to the current index
-    row = inlines[start_idx]
-
-    # Iterate through the row to find connected indices
-    for idx, is_true in enumerate(row):
-        if is_true and idx not in visited:
-            trace_trues(inlines, idx, visited)
-
-    return list(visited)
 
 def get_overlaps(
     line: List[int], bboxes: List[BoundingBox]
@@ -82,14 +62,13 @@ def resolve_overlaps(
     new_passthroughs = get_passthroughs(bboxes_subset, tolerance)
 
     new_inlines = get_inlines(bboxes_subset, pois_subarray, new_passthroughs)
-    new_lines = get_lines(new_inlines, bboxes_subset, pois_subarray, tolerance)
+    non_overlap_lines = get_lines(new_inlines, bboxes_subset, pois_subarray, tolerance)
 
-    for i, new_line in enumerate(new_lines):
+    for i, new_line in enumerate(non_overlap_lines):
         for j, idx in enumerate(new_line):
-            # print("idx: ", idx)
-            new_lines[i][j] = line[idx]
+            non_overlap_lines[i][j] = line[idx]
 
-    return new_lines
+    return non_overlap_lines
 
 def get_lines(
     inlines: InLines,
@@ -105,7 +84,7 @@ def get_lines(
     while len(visited) < n:
 
         next_idx = next(idx for idx in range(n) if idx not in visited)
-        line = trace_trues(inlines, next_idx)
+        line = get_line(inlines, next_idx)
         overlaps = get_overlaps(line, bboxes)
 
         if overlaps:
@@ -152,13 +131,6 @@ def process(
 
     lines = get_lines(inlines, bboxes, pois, 1.0)
     print(lines)
-    # print(pois)
-    # print(passthroughs)
-
-    # inlines = vertical_distances(bboxes, pois)
-    # print(inlines)
-
-    # lines = group_in_lines(bboxes)
 
     if words:
         for line in lines:
