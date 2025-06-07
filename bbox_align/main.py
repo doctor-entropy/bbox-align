@@ -6,13 +6,13 @@ from bounding_box import Coords, BoundingBox
 
 from utils import subarray
 from relationships import (
+    InLines,
+    PointOfIntersections,
+    Line,
     get_point_of_intersections,
     get_passthroughs,
     get_inlines,
     get_line,
-    InLines,
-    PointOfIntersections,
-    Line
 )
 
 Vertices = Tuple[
@@ -140,7 +140,7 @@ def process(
     # print_matrix(print_inlines)
 
     lines = get_lines(inlines, bboxes, pois, 1.0)
-    print(lines)
+    # print(lines)
 
     if words:
         for line in lines:
