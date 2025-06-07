@@ -118,7 +118,6 @@ def get_lines(
 
 def process(
     vertices: BBoxVertices,
-    words: Optional[List[str]],
     endpoints: List[Tuple[Number, Number]],
 ):
 
@@ -143,43 +142,44 @@ def process(
     # print_matrix(print_inlines)
 
     lines = get_lines(inlines, bboxes, pois, 1.0)
-    # print(lines)
 
-    if words:
-        for line in lines:
-            wrds = [words[idx] for idx in line]
-            print(' '.join(wrds))
+    return lines
+
+    # if words:
+    #     for line in lines:
+    #         wrds = [words[idx] for idx in line]
+    #         print(' '.join(wrds))
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    data_path = '../datasets/1018-new-google-api.json'
+#     data_path = '../datasets/1018-new-google-api.json'
 
-    with open(data_path, 'r') as j:
-        annotations = json.load(j)
+#     with open(data_path, 'r') as j:
+#         annotations = json.load(j)
 
-    ocr_text = annotations['textAnnotations']
-    bounding_boxes_annotation = ocr_text[1::]
+#     ocr_text = annotations['textAnnotations']
+#     bounding_boxes_annotation = ocr_text[1::]
 
-    # idxs_to_inlcude = [66, 67, 55, 56, 57, 58, 59]
-    # bounding_boxes_annotation = [bounding_boxes_annotation[i] for i in idxs_to_inlcude]
+#     # idxs_to_inlcude = [66, 67, 55, 56, 57, 58, 59]
+#     # bounding_boxes_annotation = [bounding_boxes_annotation[i] for i in idxs_to_inlcude]
 
-    def vertices_to_tuples(verts, idx: int):
+#     def vertices_to_tuples(verts, idx: int):
 
-        return (
-            (verts[0]['x'], verts[0]['y']),
-            (verts[1]['x'], verts[1]['y']),
-            (verts[2]['x'], verts[2]['y']),
-            (verts[3]['x'], verts[3]['y']),
-            idx,
-        )
+#         return (
+#             (verts[0]['x'], verts[0]['y']),
+#             (verts[1]['x'], verts[1]['y']),
+#             (verts[2]['x'], verts[2]['y']),
+#             (verts[3]['x'], verts[3]['y']),
+#             idx,
+#         )
 
-    vertices: BBoxVertices = [
-        vertices_to_tuples(x['boundingPoly']['vertices'], idx)
-        for idx, x in enumerate(bounding_boxes_annotation)
-    ]
+#     vertices: BBoxVertices = [
+#         vertices_to_tuples(x['boundingPoly']['vertices'], idx)
+#         for idx, x in enumerate(bounding_boxes_annotation)
+#     ]
 
-    words = [x['description'] for x in bounding_boxes_annotation]
+#     words = [x['description'] for x in bounding_boxes_annotation]
 
-    # process(vertices, words, [(0, 0), (670, 0), (670, 1000), (0, 1000)])
-    process(vertices, words, [(125, 0), (750, 0), (750, 1000), (0, 1000)])
+#     # process(vertices, words, [(0, 0), (670, 0), (670, 1000), (0, 1000)])
+#     process(vertices, words, [(125, 0), (750, 0), (750, 1000), (0, 1000)])
