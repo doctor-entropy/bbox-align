@@ -102,7 +102,7 @@ def get_lines(
             resolved_lines = resolve_overlaps(
                 bboxes=bboxes,
                 line=line,
-                pois_subarray=pois_subarray,
+                pois=pois_subarray,
                 tolerance=tolerance - 0.05
             )
             lines.extend(resolved_lines)
