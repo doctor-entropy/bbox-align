@@ -1,5 +1,5 @@
 from typing import Tuple, Optional, Union
-from bbox_align.geometry import Number, Point
+from .geometry import Number, Point
 
 Coords = Tuple[Number, Number]
 

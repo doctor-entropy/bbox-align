@@ -1,14 +1,9 @@
-import os
-import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import json
-
 from typing import List, Tuple, Optional, Set
-from bbox_align.geometry import Point, Number
-from bbox_align.bounding_box import Coords, BoundingBox
+from .geometry import Point, Number
+from .bounding_box import Coords, BoundingBox
 
-from bbox_align.utils import subarray
-from bbox_align.relationships import (
+from .utils import subarray
+from .relationships import (
     InLines,
     PointOfIntersections,
     Line,

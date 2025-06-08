@@ -7,7 +7,7 @@ from math import (
     radians
 )
 from typing import Union, Tuple
-from geometry import Point, Number
+from .geometry import Point, Number
 
 
 class Vector:
