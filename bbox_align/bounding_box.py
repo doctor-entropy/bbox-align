@@ -30,19 +30,12 @@ class BoundingBox:
         # Average height of the rectangle
         dp1 = self._p1 - self._p4
         dp2 = self._p2 - self._p3
-
-        (_, dh1) = dp1.co_ordinates
-        (_, dh2) = dp2.co_ordinates
-
-        self.h_avg = (abs(dh1) + abs(dh2)) / 2
+        self.h_avg = (abs(dp1.y) + abs(dp2.y)) / 2
 
         # average width of the rectangle
         dp3 = self._p1 - self._p2
         dp4 = self._p3 - self._p4
-
-        (dw1, _) = dp3.co_ordinates
-        (dw2, _) = dp4.co_ordinates
-        self.w_avg = (abs(dw1) + abs(dw2)) / 2
+        self.w_avg = (abs(dp3.x) + abs(dp4.x)) / 2
 
         self._index = idx
 
