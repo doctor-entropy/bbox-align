@@ -62,7 +62,11 @@ def get_overlaps(
     return overlaps
 
 def resolve_overlaps(
-    bboxes: List[BoundingBox], line: List[int], pois, n_iter, words
+    bboxes: List[BoundingBox],
+    line: List[int],
+    pois: PointOfIntersections,
+    n_iter: int,
+    words
 ) -> Lines:
 
     if not (n_iter <= MAX_ITERATIONS):
@@ -153,6 +157,6 @@ def process(
 
     inlines = get_inlines(bboxes, pois, passthroughs)
 
-    lines = get_lines(inlines, bboxes, pois, 1.0, words)
+    lines = get_lines(inlines, bboxes, pois, 1, words)
 
     return lines
