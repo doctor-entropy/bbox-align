@@ -26,14 +26,14 @@ BBoxVertices = List[Vertices]
 Lines = List[Line]
 
 
-def to_bbox_object(bbox: Vertices) -> BoundingBox:
+def to_bbox_object(vertices: Vertices, idx: int) -> BoundingBox:
 
     return BoundingBox(
-        p1=bbox[0],
-        p2=bbox[1],
-        p3=bbox[2],
-        p4=bbox[3],
-        idx=bbox[4],
+        p1=vertices[0],
+        p2=vertices[1],
+        p3=vertices[2],
+        p4=vertices[3],
+        idx=idx,
     )
 
 
@@ -54,8 +54,11 @@ def get_overlaps(
     return overlaps
 
 def resolve_overlaps(
-    bboxes: List[BoundingBox], line: List[int], pois, tolerance
+    bboxes: List[BoundingBox], line: List[int], pois, tolerance, words
 ) -> Lines:
+
+    if tolerance < 0.0:
+        return []
 
     bboxes_subset = [bboxes[idx] for idx in line]
     new_passthroughs = get_passthroughs(bboxes_subset, tolerance)
@@ -69,7 +72,8 @@ def resolve_overlaps(
         new_inlines,
         bboxes_subset,
         pois,
-        tolerance
+        tolerance,
+        words
     )
 
     for i, new_line in enumerate(non_overlap_lines):
@@ -82,8 +86,11 @@ def get_lines(
     inlines: InLines,
     bboxes: List[BoundingBox],
     pois: PointOfIntersections,
-    tolerance: float
+    tolerance: float,
+    words
 ) -> Lines:
+
+    tolerance = round(tolerance, 2)
 
     n = len(inlines)
     lines = []
@@ -96,14 +103,24 @@ def get_lines(
         overlaps = get_overlaps(line, bboxes)
 
         if overlaps:
+            sub_words = [words[idx] for idx in line]
             pois_subarray = subarray(pois, line)
             resolved_lines = resolve_overlaps(
                 bboxes=bboxes,
                 line=line,
                 pois=pois_subarray,
-                tolerance=tolerance - 0.05
+                tolerance=tolerance - 0.1,
+                words=sub_words
             )
-            lines.extend(resolved_lines)
+
+            if not resolved_lines:
+                if tolerance == 1.0:
+                    lines.append(line)
+                else:
+                    return []
+            else:
+                lines.extend(resolved_lines)
+
         else:
             lines.append(line)
 
@@ -114,11 +131,12 @@ def get_lines(
 def process(
     vertices: BBoxVertices,
     endpoints: List[Tuple[Number, Number]],
+    words
 ):
 
     bboxes = [
-        to_bbox_object(vertex)
-        for vertex in vertices
+        to_bbox_object(vertex, idx)
+        for idx, vertex in enumerate(vertices)
     ]
 
     _endpoints = [Point(*point) for point in endpoints]
@@ -128,53 +146,6 @@ def process(
 
     inlines = get_inlines(bboxes, pois, passthroughs)
 
-    # from copy import deepcopy
-    # print_inlines = deepcopy(inlines)
-    # for idx, i in enumerate(print_inlines):
-    #     print_inlines[idx] = [words[idx]] + print_inlines[idx]
-    # print_inlines = [[' '] + words] + print_inlines
-    # print(print_inlines)
-    # print_matrix(print_inlines)
-
-    lines = get_lines(inlines, bboxes, pois, 1.0)
+    lines = get_lines(inlines, bboxes, pois, 1.0, words)
 
     return lines
-
-    # if words:
-    #     for line in lines:
-    #         wrds = [words[idx] for idx in line]
-    #         print(' '.join(wrds))
-
-
-# if __name__ == "__main__":
-
-#     data_path = '../datasets/1018-new-google-api.json'
-
-#     with open(data_path, 'r') as j:
-#         annotations = json.load(j)
-
-#     ocr_text = annotations['textAnnotations']
-#     bounding_boxes_annotation = ocr_text[1::]
-
-#     # idxs_to_inlcude = [66, 67, 55, 56, 57, 58, 59]
-#     # bounding_boxes_annotation = [bounding_boxes_annotation[i] for i in idxs_to_inlcude]
-
-#     def vertices_to_tuples(verts, idx: int):
-
-#         return (
-#             (verts[0]['x'], verts[0]['y']),
-#             (verts[1]['x'], verts[1]['y']),
-#             (verts[2]['x'], verts[2]['y']),
-#             (verts[3]['x'], verts[3]['y']),
-#             idx,
-#         )
-
-#     vertices: BBoxVertices = [
-#         vertices_to_tuples(x['boundingPoly']['vertices'], idx)
-#         for idx, x in enumerate(bounding_boxes_annotation)
-#     ]
-
-#     words = [x['description'] for x in bounding_boxes_annotation]
-
-#     # process(vertices, words, [(0, 0), (670, 0), (670, 1000), (0, 1000)])
-#     process(vertices, words, [(125, 0), (750, 0), (750, 1000), (0, 1000)])
