@@ -1,3 +1,5 @@
+from math import floor
+
 from typing import List, Tuple, Optional, Set
 from .geometry import Point, Number
 from .bounding_box import Coords, BoundingBox
@@ -24,6 +26,12 @@ Vertices = Tuple[
 BBoxVertices = List[Vertices]
 
 Lines = List[Line]
+
+
+ITERATION_STEP = 0.1
+MAX_ITERATIONS = int(
+    floor(1 / ITERATION_STEP)
+)
 
 
 def to_bbox_object(vertices: Vertices, idx: int) -> BoundingBox:
@@ -54,14 +62,15 @@ def get_overlaps(
     return overlaps
 
 def resolve_overlaps(
-    bboxes: List[BoundingBox], line: List[int], pois, tolerance, words
+    bboxes: List[BoundingBox], line: List[int], pois, n_iter, words
 ) -> Lines:
 
-    if tolerance < 0.0:
+    if not (n_iter <= MAX_ITERATIONS):
         return []
 
     bboxes_subset = [bboxes[idx] for idx in line]
-    new_passthroughs = get_passthroughs(bboxes_subset, tolerance)
+    new_tolerance = 1.0 - (n_iter * 0.1)
+    new_passthroughs = get_passthroughs(bboxes_subset, new_tolerance)
 
     new_inlines = get_inlines(
         bboxes_subset,
@@ -72,7 +81,7 @@ def resolve_overlaps(
         new_inlines,
         bboxes_subset,
         pois,
-        tolerance,
+        n_iter + 1,
         words
     )
 
@@ -86,11 +95,9 @@ def get_lines(
     inlines: InLines,
     bboxes: List[BoundingBox],
     pois: PointOfIntersections,
-    tolerance: float,
+    n_iter: int,
     words
 ) -> Lines:
-
-    tolerance = round(tolerance, 2)
 
     n = len(inlines)
     lines = []
@@ -109,12 +116,12 @@ def get_lines(
                 bboxes=bboxes,
                 line=line,
                 pois=pois_subarray,
-                tolerance=tolerance - 0.1,
+                n_iter=n_iter,
                 words=sub_words
             )
 
             if not resolved_lines:
-                if tolerance == 1.0:
+                if n_iter == 1:
                     lines.append(line)
                 else:
                     return []
