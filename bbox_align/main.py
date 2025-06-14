@@ -4,7 +4,6 @@ from typing import List, Tuple, Optional, Set
 from .geometry import Point, Number
 from .bounding_box import Coords, BoundingBox
 
-from .utils import subarray
 from .relationships import (
     InLines,
     Line,
@@ -71,6 +70,9 @@ def resolve_overlaps(bboxes: List[BoundingBox], line: Line) -> Lines:
         default=(-1, -1)
     )
 
+    if idx1 == -1 or idx2 == -1:
+        raise ValueError("Could not find overalps")
+
     bbox1_mp, bbox2_mp = bboxes[idx1].midpoint, bboxes[idx2].midpoint
 
     remaining_indices = [idx for idx in line if idx not in {idx1, idx2}]
@@ -116,7 +118,6 @@ def get_lines(
 def process(
     vertices: BBoxVertices,
     endpoints: List[Tuple[Number, Number]],
-    words
 ):
 
     bboxes = [

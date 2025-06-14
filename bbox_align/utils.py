@@ -1,11 +1,6 @@
 from copy import deepcopy
-from typing import List, TypeVar
+from typing import List
 
-T = TypeVar('T')
-
-def subarray(array: List[List[T]], indices: List[int]) -> List[List[T]]:
-
-    return [[array[row][col] for col in indices] for row in indices]
 
 def print_matrix(matrix: List[List[bool]]) -> None:
     """
