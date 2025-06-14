@@ -7,7 +7,6 @@ from .bounding_box import Coords, BoundingBox
 from .utils import subarray
 from .relationships import (
     InLines,
-    PointOfIntersections,
     Line,
     get_point_of_intersections,
     get_passthroughs,
@@ -26,12 +25,6 @@ Vertices = Tuple[
 BBoxVertices = List[Vertices]
 
 Lines = List[Line]
-
-
-ITERATION_STEP = 0.1
-MAX_ITERATIONS = int(
-    floor(1 / ITERATION_STEP)
-)
 
 
 def to_bbox_object(vertices: Vertices, idx: int) -> BoundingBox:
@@ -61,46 +54,43 @@ def get_overlaps(
 
     return overlaps
 
-def resolve_overlaps(
-    bboxes: List[BoundingBox],
-    line: List[int],
-    pois: PointOfIntersections,
-    n_iter: int,
-    words
-) -> Lines:
+def resolve_overlaps(bboxes: List[BoundingBox], line: Line) -> Lines:
 
-    if not (n_iter <= MAX_ITERATIONS):
-        return []
+    overlaps = get_overlaps(line, bboxes)
 
-    bboxes_subset = [bboxes[idx] for idx in line]
-    new_tolerance = 1.0 - (n_iter * 0.1)
-    new_passthroughs = get_passthroughs(bboxes_subset, new_tolerance)
+    if not overlaps:
+        return [line]
 
-    new_inlines = get_inlines(
-        bboxes_subset,
-        pois,
-        new_passthroughs
-    )
-    non_overlap_lines = get_lines(
-        new_inlines,
-        bboxes_subset,
-        pois,
-        n_iter + 1,
-        words
+    # Get the overlaps which have the largest height difference
+    # This ensures better overlap resolution
+    (idx1, idx2) = max(
+        overlaps,
+        key=lambda pair: abs(
+            bboxes[pair[0]].midpoint.y - bboxes[pair[0]].midpoint.y
+        ),
+        default=(-1, -1)
     )
 
-    for i, new_line in enumerate(non_overlap_lines):
-        for j, idx in enumerate(new_line):
-            non_overlap_lines[i][j] = line[idx]
+    bbox1_mp, bbox2_mp = bboxes[idx1].midpoint, bboxes[idx2].midpoint
 
-    return non_overlap_lines
+    remaining_indices = [idx for idx in line if idx not in {idx1, idx2}]
+
+    first_line, second_line = [idx1], [idx2]
+    for idx in remaining_indices:
+        bbox_mp = bboxes[idx].midpoint
+        if abs(bbox_mp.y - bbox1_mp.y) < abs(bbox_mp.y - bbox2_mp.y):
+            first_line.append(idx)
+        else:
+            second_line.append(idx)
+
+    first_line_resolved = resolve_overlaps(bboxes, first_line)
+    second_line_resolved = resolve_overlaps(bboxes, second_line)
+
+    return first_line_resolved + second_line_resolved
 
 def get_lines(
     inlines: InLines,
     bboxes: List[BoundingBox],
-    pois: PointOfIntersections,
-    n_iter: int,
-    words
 ) -> Lines:
 
     n = len(inlines)
@@ -114,24 +104,8 @@ def get_lines(
         overlaps = get_overlaps(line, bboxes)
 
         if overlaps:
-            sub_words = [words[idx] for idx in line]
-            pois_subarray = subarray(pois, line)
-            resolved_lines = resolve_overlaps(
-                bboxes=bboxes,
-                line=line,
-                pois=pois_subarray,
-                n_iter=n_iter,
-                words=sub_words
-            )
-
-            if not resolved_lines:
-                if n_iter == 1:
-                    lines.append(line)
-                else:
-                    return []
-            else:
-                lines.extend(resolved_lines)
-
+            resolved_lines = resolve_overlaps(bboxes, line)
+            lines.extend(resolved_lines)
         else:
             lines.append(line)
 
@@ -157,6 +131,6 @@ def process(
 
     inlines = get_inlines(bboxes, pois, passthroughs)
 
-    lines = get_lines(inlines, bboxes, pois, 1, words)
+    lines = get_lines(inlines, bboxes)
 
     return lines
