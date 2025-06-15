@@ -1,8 +1,8 @@
-from math import floor
+from math import inf
 from itertools import combinations
 
 from typing import List, Tuple, Optional, Set
-from .geometry import Point, Number
+from .geometry import Point, Number, Line as GeoLine
 from .bounding_box import Coords, BoundingBox
 
 from .relationships import (
@@ -66,6 +66,29 @@ def get_overlaps(
 
     return overlaps
 
+def resolution_score(overlapped_bbox: BoundingBox, bbox: BoundingBox) -> float:
+
+    overlapped_bbox_mp = overlapped_bbox.midpoint
+    bbox_mp = bbox.midpoint
+
+    # vertical distance
+    vertical_distance = abs(overlapped_bbox_mp.y - bbox_mp.y)
+
+    # perpendicular distance
+    perpendicular_distance = GeoLine(
+        p=overlapped_bbox_mp,
+        m=overlapped_bbox.approx_orientation
+    ).distance_to_point(bbox_mp)
+
+    # Should I do an arithmetic mean? or Harmonic mean?
+    if vertical_distance == 0 or perpendicular_distance == 0:
+        return 0
+
+    am = (vertical_distance + perpendicular_distance)/2
+    hm = 2 / (1/vertical_distance  +  1/perpendicular_distance)
+
+    return hm
+
 def resolve_overlaps(bboxes: List[BoundingBox], line: Line) -> Lines:
 
     if not has_any_overlap(line, bboxes):
@@ -83,14 +106,14 @@ def resolve_overlaps(bboxes: List[BoundingBox], line: Line) -> Lines:
         default=(-1, -1) # Just for static type check
     )
 
-    bbox1_mp, bbox2_mp = bboxes[idx1].midpoint, bboxes[idx2].midpoint
-
     remaining_indices = [idx for idx in line if idx not in {idx1, idx2}]
 
     first_line, second_line = [idx1], [idx2]
     for idx in remaining_indices:
-        bbox_mp = bboxes[idx].midpoint
-        if abs(bbox_mp.y - bbox1_mp.y) < abs(bbox_mp.y - bbox2_mp.y):
+        bbox1_score = resolution_score(bboxes[idx1], bboxes[idx])
+        bbox2_score = resolution_score(bboxes[idx2], bboxes[idx])
+        # lower is better
+        if bbox1_score < bbox2_score:
             first_line.append(idx)
         else:
             second_line.append(idx)
