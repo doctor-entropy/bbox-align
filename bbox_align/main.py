@@ -1,7 +1,7 @@
 from math import floor
 from itertools import combinations
 
-from typing import List, Tuple, Optional, Set
+from typing import List, Tuple, Optional, Set, Literal
 from .geometry import Point, Number
 from .bounding_box import Coords, BoundingBox
 
@@ -16,6 +16,8 @@ from .relationships import (
     get_line,
 )
 
+from .utils import subarray
+
 Vertices = Tuple[
     Coords,
     Coords,
@@ -27,6 +29,16 @@ Vertices = Tuple[
 BBoxVertices = List[Vertices]
 
 Lines = List[Line]
+
+OverlapResolutionType = Literal[
+    'group_by_distance',
+    'reduce_tolerance'
+]
+
+ITERATION_STEP = 0.1
+MAX_ITERATIONS = int(
+    floor(1 / ITERATION_STEP)
+)
 
 
 def to_bbox_object(vertices: Vertices, idx: int) -> BoundingBox:
@@ -100,6 +112,39 @@ def resolve_overlaps(bboxes: List[BoundingBox], line: Line) -> Lines:
 
     return first_line_resolved + second_line_resolved
 
+def resolve_overlaps_by_reducing_tolerance(
+    bboxes: List[BoundingBox],
+    line: List[int],
+    pois: PointOfIntersections,
+    n_iter: int,
+) -> Lines:
+
+    if not (n_iter <= MAX_ITERATIONS):
+        return []
+
+    bboxes_subset = [bboxes[idx] for idx in line]
+    new_tolerance = 1.0 - (n_iter * ITERATION_STEP)
+    new_passthroughs = get_passthroughs(bboxes_subset, new_tolerance)
+
+    new_inlines = get_inlines(
+        bboxes_subset,
+        pois,
+        new_passthroughs
+    )
+    non_overlap_lines = get_lines(
+        new_inlines,
+        bboxes_subset,
+        pois,
+        'reduce_tolerance',
+        n_iter + 1,
+    )
+
+    for i, non_overlap_line in enumerate(non_overlap_lines):
+        for j, idx in enumerate(non_overlap_line):
+            non_overlap_lines[i][j] = line[idx]
+
+    return non_overlap_lines
+
 # Update inlines by pass-by-reference
 def update_inlines(inlines: InLines, line: Line, resolved_lines: Lines):
 
@@ -117,6 +162,9 @@ def update_inlines(inlines: InLines, line: Line, resolved_lines: Lines):
 def get_lines(
     inlines: InLines,
     bboxes: List[BoundingBox],
+    pois: PointOfIntersections,
+    resolution_type: OverlapResolutionType,
+    n_iter: int = 0,
 ) -> Lines:
 
     n = len(inlines)
@@ -128,7 +176,25 @@ def get_lines(
         next_idx = next(idx for idx in range(n) if idx not in visited)
         line = get_line(inlines, next_idx)
 
-        if has_any_overlap(line, bboxes):
+        if has_any_overlap(line, bboxes) and resolution_type == 'reduce_tolerance':
+            pois_subarray = subarray(pois, line)
+            resolved_lines = resolve_overlaps_by_reducing_tolerance(
+                bboxes=bboxes,
+                line=line,
+                pois=pois_subarray,
+                n_iter=n_iter,
+            )
+            if not resolved_lines:
+                if n_iter == 0:
+                    resolved_lines = resolve_overlaps(bboxes, line)
+                    # Update inlines as pass-by-reference
+                    update_inlines(inlines, line, resolved_lines)
+                    lines.extend(resolved_lines)
+                else:
+                    return []
+            else:
+                lines.extend(resolved_lines)
+        elif has_any_overlap(line, bboxes) and resolution_type == 'group_by_distance':
             resolved_lines = resolve_overlaps(bboxes, line)
             # Update inlines as pass-by-reference
             update_inlines(inlines, line, resolved_lines)
@@ -143,6 +209,7 @@ def get_lines(
 def process_with_meta_info(
     vertices: BBoxVertices,
     boundaries: List[Tuple[Number, Number]],
+    overlap_resolution_type: OverlapResolutionType,
 ) -> Tuple[Lines, InLines, PassThroughs, PointOfIntersections]:
 
     bboxes = [
@@ -159,17 +226,18 @@ def process_with_meta_info(
 
     # inlines will get updated by pass-by-reference
     # in this step when resolving overalps in a line
-    lines = get_lines(inlines, bboxes)
+    lines = get_lines(inlines, bboxes, pois, overlap_resolution_type)
 
     return lines, inlines, passthroughs, pois
 
 def process(
     vertices: BBoxVertices,
     boundaries: List[Tuple[Number, Number]],
+    overlap_resolution_type: OverlapResolutionType,
 ) -> Lines:
 
     line, _, _, _ = process_with_meta_info(
-        vertices, boundaries
+        vertices, boundaries, overlap_resolution_type
     )
 
     return line
