@@ -36,6 +36,17 @@ def to_bbox_object(vertices: Vertices, idx: int) -> BoundingBox:
         idx=idx,
     )
 
+def bboxes_overlapping(bbox1: BoundingBox, bbox2: BoundingBox) -> bool:
+    is_overlapping, percentage = bbox1.is_overlapping(bbox2)
+    return is_overlapping and percentage > 50
+
+def has_any_overlap(line: List[int], bboxes: List[BoundingBox]) -> bool:
+
+    return any(
+        bboxes_overlapping(bboxes[line[i]], bboxes[line[j]])
+        for i in range(len(line))
+        for j in range(i + 1, len(line))
+    )
 
 def get_overlaps(
     line: List[int], bboxes: List[BoundingBox]
@@ -47,18 +58,17 @@ def get_overlaps(
         for j in range(i + 1, len(line)):
             bbox1 = bboxes[line[i]]
             bbox2 = bboxes[line[j]]
-            is_overlapping, percentage = bbox1.is_overlapping(bbox2)
-            if is_overlapping and percentage > 50:
+            if bboxes_overlapping(bbox1, bbox2):
                 overlaps.append((line[i], line[j]))
 
     return overlaps
 
 def resolve_overlaps(bboxes: List[BoundingBox], line: Line) -> Lines:
 
-    overlaps = get_overlaps(line, bboxes)
-
-    if not overlaps:
+    if not has_any_overlap(line, bboxes):
         return [line]
+
+    overlaps = get_overlaps(line, bboxes)
 
     # Get the overlaps which have the largest height difference
     # This ensures better overlap resolution
@@ -67,11 +77,8 @@ def resolve_overlaps(bboxes: List[BoundingBox], line: Line) -> Lines:
         key=lambda pair: abs(
             bboxes[pair[0]].midpoint.y - bboxes[pair[0]].midpoint.y
         ),
-        default=(-1, -1)
+        default=(-1, -1) # Just for static type check
     )
-
-    if idx1 == -1 or idx2 == -1:
-        raise ValueError("Could not find overalps")
 
     bbox1_mp, bbox2_mp = bboxes[idx1].midpoint, bboxes[idx2].midpoint
 
@@ -103,9 +110,8 @@ def get_lines(
 
         next_idx = next(idx for idx in range(n) if idx not in visited)
         line = get_line(inlines, next_idx)
-        overlaps = get_overlaps(line, bboxes)
 
-        if overlaps:
+        if has_any_overlap(line, bboxes):
             resolved_lines = resolve_overlaps(bboxes, line)
             lines.extend(resolved_lines)
         else:
@@ -117,7 +123,7 @@ def get_lines(
 
 def process(
     vertices: BBoxVertices,
-    endpoints: List[Tuple[Number, Number]],
+    boundaries: List[Tuple[Number, Number]],
 ):
 
     bboxes = [
@@ -125,9 +131,9 @@ def process(
         for idx, vertex in enumerate(vertices)
     ]
 
-    _endpoints = [Point(*point) for point in endpoints]
+    _boundaries = [Point(*point) for point in boundaries]
 
-    pois = get_point_of_intersections(bboxes, _endpoints)
+    pois = get_point_of_intersections(bboxes, _boundaries)
     passthroughs = passthroughs = get_passthroughs(bboxes, 1)
 
     inlines = get_inlines(bboxes, pois, passthroughs)
