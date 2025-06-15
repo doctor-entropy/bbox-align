@@ -185,25 +185,3 @@ class Line:
             x0, y0 = inf, inf
 
         return Point(x0, y0)
-
-    def reflect_point(self, p: Point) -> Point:
-        """
-        Reflects a point across the line.
-
-        :param p: The point to reflect.
-        :return: The reflected point.
-        """
-        # Line coefficients: Ax + By + C = 0
-        A, B, C = self.standard_form_coeffs
-
-        # Coordinates of the point
-        x1, y1 = p.co_ordinates
-
-        # Formula for reflection:
-        # x' = x - 2 * A * (A*x + B*y + C) / (A^2 + B^2)
-        # y' = y - 2 * B * (A*x + B*y + C) / (A^2 + B^2)
-        denom = A**2 + B**2
-        x_reflected = x1 - 2 * A * (A * x1 + B * y1 + C) / denom
-        y_reflected = y1 - 2 * B * (A * x1 + B * y1 + C) / denom
-
-        return Point(x_reflected, y_reflected)
