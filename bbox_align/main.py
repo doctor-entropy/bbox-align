@@ -1,4 +1,3 @@
-from math import inf
 from itertools import combinations
 
 from typing import List, Tuple, Optional, Set
@@ -176,7 +175,7 @@ def process_with_meta_info(
     _boundaries = [Point(*point) for point in boundaries]
 
     pois = get_point_of_intersections(bboxes, _boundaries)
-    passthroughs = passthroughs = get_passthroughs(bboxes, 1)
+    passthroughs = passthroughs = get_passthroughs(bboxes)
 
     inlines = get_inlines(bboxes, pois, passthroughs)
 

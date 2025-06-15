@@ -37,12 +37,12 @@ line 'l' and 'm2'.
 m1 and m2 are the midpoints of the boxes shown above
 '''
 def is_passing_through(
-    bbox1: BoundingBox, bbox2: BoundingBox, tolerance: float
+    bbox1: BoundingBox, bbox2: BoundingBox
 ) -> Tuple[bool, float]:
 
     l1 = GeometryLine(bbox1.midpoint, bbox1.approx_orientation)
     d = l1.distance_to_point(bbox2.midpoint)
-    is_inline = d <= (bbox2.average_height/2) * tolerance
+    is_inline = d <= bbox2.average_height / 2
 
     return (is_inline, d)
 
@@ -54,11 +54,11 @@ of box2 is less than half of average height of the latter.
 In other words the line passes through the second boundingbox
 '''
 def any_passing_through(
-    bbox1: BoundingBox, bbox2: BoundingBox, tolerance: float
+    bbox1: BoundingBox, bbox2: BoundingBox
 ) -> Tuple[bool, float]:
 
-    (passes12, d12) = is_passing_through(bbox1, bbox2, tolerance)
-    (passes21, d21) = is_passing_through(bbox2, bbox1, tolerance)
+    (passes12, d12) = is_passing_through(bbox1, bbox2)
+    (passes21, d21) = is_passing_through(bbox2, bbox1)
 
     return (passes12 or passes21, (d12 + d21) / 2)
 
@@ -113,7 +113,7 @@ def get_point_of_intersections(
 
     return points_of_intersection
 
-def get_passthroughs(bboxes: List[BoundingBox], tolerance: float = 1) -> PassThroughs:
+def get_passthroughs(bboxes: List[BoundingBox]) -> PassThroughs:
 
     n = len(bboxes)
 
@@ -132,7 +132,7 @@ def get_passthroughs(bboxes: List[BoundingBox], tolerance: float = 1) -> PassThr
                 continue
 
             (passes, _) = any_passing_through(
-                bbox1, bbox2, tolerance
+                bbox1, bbox2
             )
             if passes:
                 passthroughs[idx1][idx2] = True
