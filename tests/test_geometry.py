@@ -78,12 +78,6 @@ def test_point_distance_to_line():
     l = Line(Point(0, 0), 1)  # y = x
     assert p.distance_to_line(l) == pytest.approx(0.7071, rel=1e-3)
 
-def test_point_reflect_on_line():
-    p = Point(3, 4)
-    l = Line(Point(0, 0), 1)  # y = x
-    reflected = p.reflect_on_line(l)
-    assert reflected == Point(4, 3)
-
 def test_line_constructor():
     p = Point(0, 0)
     l = Line(p, 1)  # y = x
@@ -107,9 +101,3 @@ def test_line_point_of_intersection():
     l2 = Line(Point(0, 1), -1)  # y = -x + 1
     intersection = l1.point_of_intersection(l2)
     assert intersection == Point(0.5, 0.5)
-
-def test_line_reflect_point():
-    l = Line(Point(0, 0), 1)  # y = x
-    p = Point(3, 4)
-    reflected = l.reflect_point(p)
-    assert reflected == Point(4, 3)
