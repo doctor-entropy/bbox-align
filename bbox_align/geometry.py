@@ -108,10 +108,6 @@ class Point:
 
         return abs(A*self._x + B*self._y + C) / (A**2 + B**2) ** 0.5
 
-    def reflect_on_line(self, l: "Line") -> "Point":
-
-        return l.reflect_point(self)
-
 
 class Line:
 
