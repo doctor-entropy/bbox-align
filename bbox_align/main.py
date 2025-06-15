@@ -8,6 +8,8 @@ from .bounding_box import Coords, BoundingBox
 from .relationships import (
     InLines,
     Line,
+    PassThroughs,
+    PointOfIntersections,
     get_point_of_intersections,
     get_passthroughs,
     get_inlines,
@@ -141,7 +143,7 @@ def get_lines(
 def process_with_meta_info(
     vertices: BBoxVertices,
     boundaries: List[Tuple[Number, Number]],
-):
+) -> Tuple[Lines, InLines, PassThroughs, PointOfIntersections]:
 
     bboxes = [
         to_bbox_object(vertex, idx)
@@ -164,7 +166,7 @@ def process_with_meta_info(
 def process(
     vertices: BBoxVertices,
     boundaries: List[Tuple[Number, Number]],
-):
+) -> Lines:
 
     line, _, _, _ = process_with_meta_info(
         vertices, boundaries
