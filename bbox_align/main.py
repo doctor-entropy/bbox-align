@@ -1,4 +1,5 @@
 from math import floor
+from itertools import combinations
 
 from typing import List, Tuple, Optional, Set
 from .geometry import Point, Number
@@ -97,6 +98,20 @@ def resolve_overlaps(bboxes: List[BoundingBox], line: Line) -> Lines:
 
     return first_line_resolved + second_line_resolved
 
+# Update inlines by pass-by-reference
+def update_inlines(inlines: InLines, line: Line, resolved_lines: Lines):
+
+    overlap_indices = combinations(line, 2)
+    for (idx1, idx2) in overlap_indices:
+        inlines[idx1][idx2] = False
+        inlines[idx2][idx2] = False
+
+    for resolved_line in resolved_lines:
+        resolved_indices = combinations(resolved_line, 2)
+        for (idx1, idx2) in resolved_indices:
+            inlines[idx1][idx2] = True
+            inlines[idx2][idx1] = True
+
 def get_lines(
     inlines: InLines,
     bboxes: List[BoundingBox],
@@ -113,6 +128,8 @@ def get_lines(
 
         if has_any_overlap(line, bboxes):
             resolved_lines = resolve_overlaps(bboxes, line)
+            # Update inlines as pass-by-reference
+            update_inlines(inlines, line, resolved_lines)
             lines.extend(resolved_lines)
         else:
             lines.append(line)
@@ -121,7 +138,7 @@ def get_lines(
 
     return lines
 
-def process(
+def process_with_meta_info(
     vertices: BBoxVertices,
     boundaries: List[Tuple[Number, Number]],
 ):
@@ -138,6 +155,19 @@ def process(
 
     inlines = get_inlines(bboxes, pois, passthroughs)
 
+    # inlines will get updated by pass-by-reference
+    # in this step when resolving overalps in a line
     lines = get_lines(inlines, bboxes)
 
-    return lines
+    return lines, inlines, passthroughs, pois
+
+def process(
+    vertices: BBoxVertices,
+    boundaries: List[Tuple[Number, Number]],
+):
+
+    line, _, _, _ = process_with_meta_info(
+        vertices, boundaries
+    )
+
+    return line
