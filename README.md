@@ -28,8 +28,7 @@ for line in lines:
     print(' '.join(sentence_list))
 
 '''
-Output
-
+$ python3 run.py
 hello
 world :)
 '''

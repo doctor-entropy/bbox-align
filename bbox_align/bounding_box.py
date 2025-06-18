@@ -1,7 +1,6 @@
 from typing import Tuple, Optional, Union
+from .types import Coords
 from .geometry import Number, Point
-
-Coords = Tuple[Number, Number]
 
 
 class BoundingBox:

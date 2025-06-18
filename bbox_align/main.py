@@ -1,9 +1,17 @@
 from itertools import combinations
 
-from typing import List, Tuple, Optional, Set
+from typing import List, Tuple, Set
 from .geometry import Point, Number, Line as GeoLine
-from .bounding_box import Coords, BoundingBox
+from .bounding_box import BoundingBox
 
+from .types import (
+    Vertices,
+    Lines,
+    BBoxVertices,
+    InLines,
+    PassThroughs,
+    PointOfIntersections
+)
 from .relationships import (
     InLines,
     Line,
@@ -14,19 +22,6 @@ from .relationships import (
     get_inlines,
     get_line,
 )
-
-Vertices = Tuple[
-    Coords,
-    Coords,
-    Coords,
-    Coords,
-    Optional[int],
-]
-
-BBoxVertices = List[Vertices]
-
-Lines = List[Line]
-
 
 def to_bbox_object(vertices: Vertices, idx: int) -> BoundingBox:
 
@@ -182,6 +177,7 @@ def process_with_meta_info(
     # inlines will get updated by pass-by-reference
     # in this step when resolving overalps in a line
     lines = get_lines(inlines, bboxes)
+    lines = sort(lines, bboxes)
 
     return lines, inlines, passthroughs, pois
 

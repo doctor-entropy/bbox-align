@@ -2,24 +2,15 @@ from math import inf
 from copy import deepcopy
 
 from typing import Tuple, List, Union, Optional
+from .types import (
+    PointOfIntersections,
+    PassThroughs,
+    InLines,
+    Line,
+    Lines
+)
 from .geometry import Point, Line as GeometryLine
 from .bounding_box import BoundingBox
-
-
-PointOfIntersections = List[
-    List[Union[Point, None]]
-]
-
-PassThroughs = List[
-    List[bool]
-]
-
-InLines = List[
-    List[bool]
-]
-
-Line = List[int]
-
 
 
 '''
@@ -214,3 +205,7 @@ def get_line(
             get_line(inlines, idx, visited)
 
     return list(visited)
+
+def sort(lines: Lines, bboxes: List[BoundingBox]):
+
+    pass
