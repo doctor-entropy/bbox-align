@@ -13,12 +13,13 @@
 ```py
 import bbox_align
 
-with open('./example-ocr-response.json', 'r') as j:
-    data = json.load(j)
-
-vertices = data['vertices'] # [ [(0, 0), (10, 0), (10, 10), (0, 10)] ... ]
-words = data['words'] # [ 'hello', .. , 'world', ..]
-boundaries = data['boundaries'] # [(0, 0), (100, 0), (100, 100), (0, 100)]
+vertices = [
+    [ (0, 15), (10, 15), (10, 25), (0, 25) ], # world
+    [ (15, 15), (15, 15), (15, 25), (15, 25) ], # :)
+    [ (0, 0), (10, 0), (10, 10), (0, 10) ], # hello
+]
+words = ['world', ':)', 'hello']
+boundaries = [ (0, 0), (25, 0), (25, 50), (0, 50) ]
 
 lines = bbox_align.process(vertices, boundaries)
 
@@ -26,6 +27,12 @@ for line in lines:
     sentence_list = [words[idx] for idx in line]
     print(' '.join(sentence_list))
 
+'''
+Output
+
+hello
+world :)
+'''
 ```
 
 ## Concept
