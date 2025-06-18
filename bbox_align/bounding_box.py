@@ -1,6 +1,6 @@
 from typing import Tuple, Optional, Union
 from .types import Coords
-from .geometry import Number, Point
+from .geometry import Point
 
 
 class BoundingBox:

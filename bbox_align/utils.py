@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import List, TypeVar, Optional, Union, Any
+from typing import List, TypeVar, Optional, Any
 
 
 T = TypeVar('T')
