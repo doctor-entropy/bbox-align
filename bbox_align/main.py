@@ -1,7 +1,7 @@
 from itertools import combinations
 
 from typing import List, Tuple, Set
-from .geometry import Point, Number, Line as GeoLine
+from .types import Point, Number, GeometryLine
 from .bounding_box import BoundingBox
 
 from .types import (
@@ -21,7 +21,9 @@ from .relationships import (
     get_passthroughs,
     get_inlines,
     get_line,
+    # sort,
 )
+from .utils import harmonic_mean
 
 def to_bbox_object(vertices: Vertices, idx: int) -> BoundingBox:
 
@@ -69,7 +71,7 @@ def resolution_score(overlapped_bbox: BoundingBox, bbox: BoundingBox) -> float:
     vertical_distance = abs(overlapped_bbox_mp.y - bbox_mp.y)
 
     # perpendicular distance
-    perpendicular_distance = GeoLine(
+    perpendicular_distance = GeometryLine(
         p=overlapped_bbox_mp,
         m=overlapped_bbox.approx_orientation
     ).distance_to_point(bbox_mp)
@@ -78,10 +80,13 @@ def resolution_score(overlapped_bbox: BoundingBox, bbox: BoundingBox) -> float:
     if vertical_distance == 0 or perpendicular_distance == 0:
         return 0
 
-    am = (vertical_distance + perpendicular_distance)/2
-    hm = 2 / (1/vertical_distance  +  1/perpendicular_distance)
-
-    return hm
+    try:
+        return harmonic_mean(
+            vertical_distance,
+            perpendicular_distance
+        )
+    except ValueError:
+        return 0
 
 def resolve_overlaps(bboxes: List[BoundingBox], line: Line) -> Lines:
 
@@ -177,7 +182,6 @@ def process_with_meta_info(
     # inlines will get updated by pass-by-reference
     # in this step when resolving overalps in a line
     lines = get_lines(inlines, bboxes)
-    lines = sort(lines, bboxes)
 
     return lines, inlines, passthroughs, pois
 

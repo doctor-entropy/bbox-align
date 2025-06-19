@@ -1,8 +1,7 @@
-from .geometry import Point
+from .geometry import Number, Point, Line as GeometryLine
 from typing import Tuple, List, Optional, Union
 
 # ### Geometry related #######
-Number = Union[float, int]
 Coords = Tuple[Number, Number]
 ###############################
 

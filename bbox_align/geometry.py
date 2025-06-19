@@ -1,6 +1,7 @@
 from math import inf
-from typing import Tuple
-from .types import Number
+from typing import Tuple, Union
+
+Number = Union[float, int]
 
 
 class Point:

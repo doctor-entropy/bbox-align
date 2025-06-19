@@ -47,3 +47,21 @@ def pprint_matrix(
 
     for row in aug_matrix:
         print(" ".join([f"{str(cell):>{maxl + 2}}" for cell in row]))
+
+
+class NoArgumentsError(Exception):
+    """Custom exception raised when no arguments are provided."""
+    pass
+
+def harmonic_mean(*args: float) -> float:
+
+    if not args:
+        raise NoArgumentsError("At least one number must be provided.")
+
+    if any(arg <= 0 for arg in args):
+        raise ValueError("All numbers must be positive")
+
+    n = len(args)
+    deno = sum(1/arg for arg in args)
+
+    return n / deno

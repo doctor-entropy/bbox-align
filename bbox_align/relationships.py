@@ -206,6 +206,13 @@ def get_line(
 
     return list(visited)
 
-def sort(lines: Lines, bboxes: List[BoundingBox]):
+def sort_lines_horizontally(lines: Lines, bboxes: List[BoundingBox]) -> Lines:
 
-    pass
+    return [
+        sorted(line, key=lambda idx: bboxes[idx].midpoint.x)
+        for line in lines
+    ]
+
+def sort_lines_vertically(lines: Lines, bbox: List[BoundingBox]) -> Lines:
+
+    return []
