@@ -1,5 +1,7 @@
+import statistics
 from math import inf
 from copy import deepcopy
+from functools import reduce
 
 from typing import Tuple, List, Union, Optional
 from .types import (
@@ -213,6 +215,41 @@ def sort_lines_horizontally(lines: Lines, bboxes: List[BoundingBox]) -> Lines:
         for line in lines
     ]
 
-def sort_lines_vertically(lines: Lines, bbox: List[BoundingBox]) -> Lines:
+def vertical_score(line: Line, bboxes: List[BoundingBox]) -> float:
 
-    return []
+    n = len(line)
+
+    _bboxes = [bboxes[idx] for idx in line]
+
+    slopes = [bbox.approx_orientation for bbox in _bboxes]
+    average_slop = sum(slopes) / n
+
+    sum_of_midpoints = reduce(
+        lambda p1, p2: p1 + p2,
+        [bbox.midpoint for bbox in _bboxes]
+    )
+    average_midpoint = sum_of_midpoints / n
+
+    _line = GeometryLine(
+        p=average_midpoint,
+        m=average_slop,
+    )
+
+    y = average_midpoint.y
+    c = _line.intercept
+
+    return (y + c) / 2
+
+
+def sort_lines_vertically(lines: Lines, bboxes: List[BoundingBox]) -> Lines:
+
+    scores = [vertical_score(line, bboxes) for line in lines]
+
+    return [x for _, x in sorted(zip(scores, lines))]
+
+def sort(lines, bboxes) -> Lines:
+
+    x_sorted = sort_lines_horizontally(lines, bboxes)
+    fully_sorted = sort_lines_vertically(x_sorted, bboxes)
+
+    return fully_sorted

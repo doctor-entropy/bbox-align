@@ -137,6 +137,11 @@ class Line:
 
         return self._m, -1, self._c
 
+    @property
+    def intercept(self) -> Number:
+
+        return self._c
+
     '''
     finding the shortest distance between
     the line and a point, which return the

@@ -1,3 +1,4 @@
+import statistics
 from itertools import combinations
 
 from typing import List, Tuple, Set
@@ -21,9 +22,8 @@ from .relationships import (
     get_passthroughs,
     get_inlines,
     get_line,
-    # sort,
+    sort,
 )
-from .utils import harmonic_mean
 
 def to_bbox_object(vertices: Vertices, idx: int) -> BoundingBox:
 
@@ -80,13 +80,10 @@ def resolution_score(overlapped_bbox: BoundingBox, bbox: BoundingBox) -> float:
     if vertical_distance == 0 or perpendicular_distance == 0:
         return 0
 
-    try:
-        return harmonic_mean(
-            vertical_distance,
-            perpendicular_distance
-        )
-    except ValueError:
-        return 0
+    return statistics.harmonic_mean([
+        vertical_distance,
+        perpendicular_distance
+    ])
 
 def resolve_overlaps(bboxes: List[BoundingBox], line: Line) -> Lines:
 
@@ -182,8 +179,9 @@ def process_with_meta_info(
     # inlines will get updated by pass-by-reference
     # in this step when resolving overalps in a line
     lines = get_lines(inlines, bboxes)
+    sorted_lines = sort(lines, bboxes)
 
-    return lines, inlines, passthroughs, pois
+    return sorted_lines, inlines, passthroughs, pois
 
 def process(
     vertices: BBoxVertices,
