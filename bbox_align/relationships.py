@@ -1,5 +1,5 @@
 import statistics
-from math import inf
+from math import inf, degrees
 from copy import deepcopy
 from functools import reduce
 
@@ -35,7 +35,8 @@ def is_passing_through(
 
     l1 = GeometryLine(bbox1.midpoint, bbox1.approx_orientation)
     d = l1.distance_to_point(bbox2.midpoint)
-    is_inline = d <= bbox2.average_height / 2
+    slope_diff = degrees(abs(bbox1.approx_orientation - bbox2.approx_orientation))
+    is_inline = d <= bbox2.average_height / 2 and slope_diff < 3
 
     return (is_inline, d)
 
@@ -140,7 +141,14 @@ def sum_vertical_distances(
     m1 = bbox1.midpoint
     m2 = bbox2.midpoint
 
-    return abs((m1 - poi).y) + abs((m2 - poi).y)
+    average_vertical_distance_poi = abs((m1 - poi).y) + abs((m2 - poi).y) / 2
+    average_vertical_distance = abs((m1 - m2).y)
+
+
+    return statistics.harmonic_mean([
+        average_vertical_distance,
+        average_vertical_distance_poi
+    ])
 
 def safe_sum_vertical_distances(
     bbox1: BoundingBox, bbox2: BoundingBox, poi: Union[Point, None]
@@ -183,6 +191,7 @@ def get_inlines(
 
         if min_value != inf and not (is_overlapping and percentage > 50):
             inlines[idx][argmin_idx] = True
+            inlines[argmin_idx][idx] = True
 
     return inlines
 

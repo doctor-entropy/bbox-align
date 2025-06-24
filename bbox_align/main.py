@@ -85,7 +85,7 @@ def resolution_score(overlapped_bbox: BoundingBox, bbox: BoundingBox) -> float:
         perpendicular_distance
     ])
 
-def resolve_overlaps(bboxes: List[BoundingBox], line: Line) -> Lines:
+def resolve_overlaps(bboxes: List[BoundingBox], line: Line, words) -> Lines:
 
     if not has_any_overlap(line, bboxes):
         return [line]
@@ -97,7 +97,7 @@ def resolve_overlaps(bboxes: List[BoundingBox], line: Line) -> Lines:
     (idx1, idx2) = max(
         overlaps,
         key=lambda pair: abs(
-            bboxes[pair[0]].midpoint.y - bboxes[pair[0]].midpoint.y
+            bboxes[pair[0]].midpoint.y - bboxes[pair[1]].midpoint.y
         ),
         default=(-1, -1) # Just for static type check
     )
@@ -114,8 +114,19 @@ def resolve_overlaps(bboxes: List[BoundingBox], line: Line) -> Lines:
         else:
             second_line.append(idx)
 
-    first_line_resolved = resolve_overlaps(bboxes, first_line)
-    second_line_resolved = resolve_overlaps(bboxes, second_line)
+    first_line_resolved = resolve_overlaps(bboxes, first_line, words)
+    second_line_resolved = resolve_overlaps(bboxes, second_line, words)
+
+    # print("line: ", line)
+    # print("words: ", [words[idx] for idx in line])
+    # print("remaining_indices: ", remaining_indices)
+    # print("remaining words: ", [words[idx] for idx in remaining_indices])
+    # first_line_words = [words[idx] for idx in first_line]
+    # second_line_words = [words[idx] for idx in second_line]
+    # first_line_resolved_words = [words[idx] for line in first_line_resolved for idx in line]
+    # second_line_resovled_words = [words[idx] for line in second_line_resolved for idx in line]
+    # print(f"Before {words[idx1]}, {words[idx2]}: {first_line_words}, {second_line_words}")
+    # print(f"After {words[idx1]}, {words[idx2]}: {first_line_resolved_words}, {second_line_resovled_words}")
 
     return first_line_resolved + second_line_resolved
 
@@ -136,6 +147,7 @@ def update_inlines(inlines: InLines, line: Line, resolved_lines: Lines):
 def get_lines(
     inlines: InLines,
     bboxes: List[BoundingBox],
+    words
 ) -> Lines:
 
     n = len(inlines)
@@ -148,7 +160,7 @@ def get_lines(
         line = get_line(inlines, next_idx)
 
         if has_any_overlap(line, bboxes):
-            resolved_lines = resolve_overlaps(bboxes, line)
+            resolved_lines = resolve_overlaps(bboxes, line, words)
             # Update inlines as pass-by-reference
             update_inlines(inlines, line, resolved_lines)
             lines.extend(resolved_lines)
@@ -162,6 +174,7 @@ def get_lines(
 def process_with_meta_info(
     vertices: BBoxVertices,
     boundaries: List[Tuple[Number, Number]],
+    words
 ) -> Tuple[Lines, InLines, PassThroughs, PointOfIntersections]:
 
     bboxes = [
@@ -178,7 +191,7 @@ def process_with_meta_info(
 
     # inlines will get updated by pass-by-reference
     # in this step when resolving overalps in a line
-    lines = get_lines(inlines, bboxes)
+    lines = get_lines(inlines, bboxes, words)
     sorted_lines = sort(lines, bboxes)
 
     return sorted_lines, inlines, passthroughs, pois
