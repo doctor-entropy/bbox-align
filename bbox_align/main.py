@@ -22,6 +22,7 @@ from .relationships import (
     get_passthroughs,
     get_inlines,
     get_line,
+    bboxes_overlapping,
     sort,
 )
 
@@ -34,10 +35,6 @@ def to_bbox_object(vertices: Vertices, idx: int) -> BoundingBox:
         p4=vertices[3],
         idx=idx,
     )
-
-def bboxes_overlapping(bbox1: BoundingBox, bbox2: BoundingBox) -> bool:
-    is_overlapping, percentage = bbox1.is_overlapping(bbox2)
-    return is_overlapping and percentage > 50
 
 def has_any_overlap(line: List[int], bboxes: List[BoundingBox]) -> bool:
 
@@ -147,7 +144,8 @@ def update_inlines(inlines: InLines, line: Line, resolved_lines: Lines):
 def get_lines(
     inlines: InLines,
     bboxes: List[BoundingBox],
-    words
+    words,
+    allow_overlaps
 ) -> Lines:
 
     n = len(inlines)
@@ -159,7 +157,7 @@ def get_lines(
         next_idx = next(idx for idx in range(n) if idx not in visited)
         line = get_line(inlines, next_idx)
 
-        if has_any_overlap(line, bboxes):
+        if not allow_overlaps and has_any_overlap(line, bboxes):
             resolved_lines = resolve_overlaps(bboxes, line, words)
             # Update inlines as pass-by-reference
             update_inlines(inlines, line, resolved_lines)
@@ -174,7 +172,8 @@ def get_lines(
 def process_with_meta_info(
     vertices: BBoxVertices,
     boundaries: List[Tuple[Number, Number]],
-    words
+    words,
+    allow_overlaps: bool = False,
 ) -> Tuple[Lines, InLines, PassThroughs, PointOfIntersections]:
 
     bboxes = [
@@ -191,18 +190,19 @@ def process_with_meta_info(
 
     # inlines will get updated by pass-by-reference
     # in this step when resolving overalps in a line
-    lines = get_lines(inlines, bboxes, words)
-    sorted_lines = sort(lines, bboxes)
+    lines = get_lines(inlines, bboxes, words, allow_overlaps)
+    sorted_lines = sort(lines, bboxes, allow_overlaps)
 
     return sorted_lines, inlines, passthroughs, pois
 
 def process(
     vertices: BBoxVertices,
     boundaries: List[Tuple[Number, Number]],
+    allow_overlaps: bool = False
 ) -> Lines:
 
     line, _, _, _ = process_with_meta_info(
-        vertices, boundaries
+        vertices, boundaries, allow_overlaps
     )
 
     return line

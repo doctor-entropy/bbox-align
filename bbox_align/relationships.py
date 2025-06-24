@@ -217,10 +217,50 @@ def get_line(
 
     return list(visited)
 
-def sort_lines_horizontally(lines: Lines, bboxes: List[BoundingBox]) -> Lines:
+def bboxes_overlapping(bbox1: BoundingBox, bbox2: BoundingBox) -> bool:
+    is_overlapping, percentage = bbox1.is_overlapping(bbox2)
+    return is_overlapping and percentage > 50
+
+
+def sort_line_horizontal(line: Line, bboxes: List[BoundingBox], allow_overlaps: bool) -> Line:
+    line_sorted = sorted(line, key=lambda idx: bboxes[idx].midpoint.x)
+
+    if not allow_overlaps:
+        return line_sorted
+
+    # else - sort line vertically only on overlapping ranges
+    result = []
+    group = [line_sorted[0]]
+
+    for idx in line_sorted[1:]:
+        current_box = bboxes[idx]
+        last_box = bboxes[group[-1]]
+
+        if bboxes_overlapping(current_box, last_box):
+            group.append(idx)
+        else:
+            if len(group) > 1:
+                group.sort(key=lambda i: bboxes[i].y1)
+            result.extend(group)
+            group = [idx]
+
+    # Process last group
+    if len(group) > 1:
+        group.sort(key=lambda i: bboxes[i].y1)
+    result.extend(group)
+
+    return result
+
+def sort_line_with_overlaps(line: Line, bboxes: List[BoundingBox]) -> Line:
+
+    pass
+
+def sort_lines_horizontally(
+    lines: Lines, bboxes: List[BoundingBox], allow_overlaps: bool
+) -> Lines:
 
     return [
-        sorted(line, key=lambda idx: bboxes[idx].midpoint.x)
+        sort_line_horizontal(line, bboxes, allow_overlaps)
         for line in lines
     ]
 
@@ -256,9 +296,9 @@ def sort_lines_vertically(lines: Lines, bboxes: List[BoundingBox]) -> Lines:
 
     return [x for _, x in sorted(zip(scores, lines))]
 
-def sort(lines, bboxes) -> Lines:
+def sort(lines, bboxes, allow_overlaps: bool) -> Lines:
 
-    x_sorted = sort_lines_horizontally(lines, bboxes)
+    x_sorted = sort_lines_horizontally(lines, bboxes, allow_overlaps)
     fully_sorted = sort_lines_vertically(x_sorted, bboxes)
 
     return fully_sorted
