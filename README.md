@@ -34,6 +34,39 @@ world :)
 '''
 ```
 
+## Examples
+
+<table>
+  <tr>
+    <td>
+      <img src="https://raw.githubusercontent.com/doctor-entropy/bbox-align/main/images/1191-receipt.jpg" alt="parallel" style="width:400px;"/>
+    </td>
+    <td>
+      <pre>
+MOD Pizza
+26902 92nd Ave NW
+Suite A
+Stanwood , WA 98292
+Phone 360.205.9680
+5/19/2019 4:06:54 PM
+Order Id : AABT4HN6ACCM
+# 77 - HERE
+Draft Beer ( 2 @ 4.97 ) $ 9.94
+Fountain Drink ( 1602 ) $ 2.17
+MOD Pizza $ 8.67
+Mini MOD $ 6.67
+Sub Total $ 27.45
+Sales Tax $ 2.53
+Order Total $ 29.98
+Visa $ 29.98
+Tip : $ 3.59
+Card # : **** ***** 3352
+819160
+      </pre>
+    </td>
+  </tr>
+</table>
+
 ## Concept
 Two bounding boxes are considered inline if the y-coordinate of one box's vertical center lies within the top and bottom bounds of the other box.
 
