@@ -71,6 +71,8 @@ Card # : **** ***** 3352
     <td>
       <img src="https://raw.githubusercontent.com/doctor-entropy/bbox-align/main/images/bill.jpg" alt="parallel" style="width:400px;"/>
     </td>
+  </tr>
+  <tr>
     <td>
       <pre style="background-color:#f4f4f4; padding:10px; border:1px solid #ddd; border-radius:5px; font-family:monospace; font-size:14px; line-height:1.5;">
 Orange & Rockland 390 West Route 59
