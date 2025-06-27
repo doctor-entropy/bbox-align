@@ -65,6 +65,8 @@ Card # : **** ***** 3352
       </pre>
     </td>
   </tr>
+</table>
+<table>
   <tr>
     <td>
       <img src="https://raw.githubusercontent.com/doctor-entropy/bbox-align/main/images/bill.jpg" alt="parallel" style="width:400px;"/>
