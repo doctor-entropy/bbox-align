@@ -240,20 +240,16 @@ def sort_line_horizontal(line: Line, bboxes: List[BoundingBox], allow_overlaps: 
             group.append(idx)
         else:
             if len(group) > 1:
-                group.sort(key=lambda i: bboxes[i].y1)
+                group.sort(key=lambda i: bboxes[i].midpoint.y)
             result.extend(group)
             group = [idx]
 
     # Process last group
     if len(group) > 1:
-        group.sort(key=lambda i: bboxes[i].y1)
+        group.sort(key=lambda i: bboxes[i].midpoint.y)
     result.extend(group)
 
     return result
-
-def sort_line_with_overlaps(line: Line, bboxes: List[BoundingBox]) -> Line:
-
-    pass
 
 def sort_lines_horizontally(
     lines: Lines, bboxes: List[BoundingBox], allow_overlaps: bool
