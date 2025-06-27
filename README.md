@@ -42,7 +42,7 @@ world :)
       <img src="https://raw.githubusercontent.com/doctor-entropy/bbox-align/main/images/1191-receipt.jpg" alt="parallel" style="width:400px;"/>
     </td>
     <td>
-      <pre>
+      <pre style="background-color:#f4f4f4; padding:10px; border:1px solid #ddd; border-radius:5px; font-family:monospace; font-size:14px; line-height:1.5;">
 MOD Pizza
 26902 92nd Ave NW
 Suite A
@@ -62,6 +62,75 @@ Visa $ 29.98
 Tip : $ 3.59
 Card # : **** ***** 3352
 819160
+      </pre>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <img src="https://raw.githubusercontent.com/doctor-entropy/bbox-align/main/images/bill.jpg" alt="parallel" style="width:400px;"/>
+    </td>
+    <td>
+      <pre style="background-color:#f4f4f4; padding:10px; border:1px solid #ddd; border-radius:5px; font-family:monospace; font-size:14px; line-height:1.5;">
+Orange & Rockland 390 West Route 59
+Pike County Light & Power Co. Spring Valley NY 10977-5300 Page 1 of 2
+Rockland Electric Company 1-877-434-4100 www.oru.com
+Your next Meter If you have questions
+JOAN SMITH Reading will be about this bill , call
+24 ORCHARD LN Feb 27 toll free 1-877-434-4100
+-
+SMALL CITY NY 19999-0000 or go to www.oru.com
+ELECTRIC RESIDENTIAL - DELIVERY BILLING DATE 01/29/09
+Jan 29 reading ( Actual ) 61114 BILLING SUMMARY
+Dec 30 reading ( Actual ) -60597 ACCOUNT NUMBER
+Total Usage KWH 30 Days 517 67890-12345
+Last Bill $ 422.80
+Delivery Charges Payment - EFT
+Basic Service Charge $ 9.09
+First 250 KWH 5.6920 each 14.23 01/12/09 -422.80
+Next 267 KWH 44880 each 11.98 Service Charges
+Energy Cst Adj 517 KWH -0.045000 -23
+€ Electric 89.62
+RDM Adjustment 517 KWH 0.16400 85 Gas 266.67
+SBC / RP5 Cha 517 KWH 0.388970 201
+Government surcharges - Delivery .76 TOTAL
+Total Delivery Charges $ 38.69 AMOUNT DUE $ 356.29
+Avg . Temp This Period 25 F
+Total Supplier Charge 50.93 Same Period Last Year 33F
+CURRENT ELECTRIC CHARGES $ 89.62
+ELECTRIC USAGE : MONTHLY
+820
+GAS FIRM TRANS RES SPACE HEATING - DELIVERY 615
+410
+Jan 29 reading ( Actual ) 5004 205
+Dec 30 reading ( Actual ) -4846 0
+KWH JFMAMJJASON DJ AVG
+Total Usage CCF 30 Days 158 2008 2009
+Delivery Charges
+Basic Service Charge $ 14.00 GAS USAGE : MONTHLY
+First 3CCF 0.000 € each .00 300
+Next 47 CCF @ 34.2830 each 16.11 225
+Next 108 CCF 32.995 € each 35.63 150
+Adjustment charge @ -0.01045 € -.02 75
+SBC Charge 158 CCF 0.345200 55 0
+Government surcharges - Delivery 1.44 CCF JFMAMJJASON DJ AVG
+2008 2009
+Total Delivery Charges $ 67.71
+Merchant Function Chg 158 CCF 0.70300 < 1.11
+Government surcharges - Delivery 02
+Merchant Function Charges $ 1.13 ACTUAL ESTIMATED AVG . CUST PROFILE
+Total Supplier Charge 197.83
+CURRENT GAS CHARGES $ 266.67
+Orange & Rockland TOTAL AMOUNT DUE $ 356.29
+67890-12345
+RG Amount enclosed :
+JOAN SMITH
+24 ORCHARD LN
+SMALL CITY NY 19999-0000
+PO Box 1005
+Spring Valley NY 10977
+NEIGHBOR FUND : Add $ 1 0009 6789012345 0000000000 00000035629
+and O & R Will Match
+0046880 This bill is due on receipt . Detach and mail this portion with payment .
       </pre>
     </td>
   </tr>
