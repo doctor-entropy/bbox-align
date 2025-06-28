@@ -117,7 +117,7 @@ Total Usage CCF 30 Days         158                 2008              2009
 <table>
   <tr>
     <td>
-      <img src="https://raw.githubusercontent.com/doctor-entropy/bbox-align/main/images/saying-on-wall.jpg" alt="saying" style="width:400px;"/>
+      <img src="https://raw.githubusercontent.com/doctor-entropy/bbox-align/main/images/saying-on-wall.jpg" alt="saying" style="width:600px;"/>
     </td>
     <td>
       <pre style="background-color:#f4f4f4; padding:10px; border:1px solid #ddd; border-radius:5px; font-family:monospace; font-size:14px; line-height:1.5;">
