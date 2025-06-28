@@ -36,7 +36,7 @@ def is_passing_through(
     l1 = GeometryLine(bbox1.midpoint, bbox1.approx_orientation)
     d = l1.distance_to_point(bbox2.midpoint)
     slope_diff = degrees(abs(bbox1.approx_orientation - bbox2.approx_orientation))
-    is_inline = d <= bbox2.average_height / 2 and slope_diff < 3
+    is_inline = d <= bbox2.average_height / 2 and slope_diff < 5
 
     return (is_inline, d)
 
@@ -100,6 +100,7 @@ def get_point_of_intersections(
             )
 
             poi = line1.point_of_intersection(line2)
+            poi = Point(*[round(coord, 2) for coord in poi.co_ordinates])
             if is_point_in_polygon(poi, endpoints):
                 points_of_intersection[idx1][idx2] = poi
                 points_of_intersection[idx2][idx1] = poi
@@ -134,9 +135,12 @@ def get_passthroughs(bboxes: List[BoundingBox]) -> PassThroughs:
 
     return passthroughs
 
-def sum_vertical_distances(
-    bbox1: BoundingBox, bbox2: BoundingBox, poi: Point
+def poi_distance_score(
+    bbox1: BoundingBox, bbox2: BoundingBox, poi: Union[Point, None]
 ) -> float:
+
+    if poi is None or bbox1.idx == bbox2.idx:
+        return inf
 
     m1 = bbox1.midpoint
     m2 = bbox2.midpoint
@@ -144,20 +148,10 @@ def sum_vertical_distances(
     average_vertical_distance_poi = abs((m1 - poi).y) + abs((m2 - poi).y) / 2
     average_vertical_distance = abs((m1 - m2).y)
 
-
     return statistics.harmonic_mean([
         average_vertical_distance,
         average_vertical_distance_poi
     ])
-
-def safe_sum_vertical_distances(
-    bbox1: BoundingBox, bbox2: BoundingBox, poi: Union[Point, None]
-) -> float:
-
-    if poi is None or bbox1.idx == bbox2.idx:
-        return inf
-    else:
-        return sum_vertical_distances(bbox1, bbox2, poi)
 
 def get_inlines(
     bboxes: List[BoundingBox],
@@ -173,7 +167,7 @@ def get_inlines(
 
         point_of_intersections = pois[idx]
         vertical_distances = [
-            safe_sum_vertical_distances(
+            poi_distance_score(
                 bbox1=bboxes[idx],
                 bbox2=bboxes[_idx],
                 poi=poi

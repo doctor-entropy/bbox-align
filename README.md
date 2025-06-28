@@ -114,6 +114,26 @@ Total Usage CCF 30 Days         158                 2008              2009
   </tr>
 </table>
 
+<table>
+  <tr>
+    <td>
+      <img src="https://raw.githubusercontent.com/doctor-entropy/bbox-align/main/images/saying.jpg" alt="saying" style="width:400px;"/>
+    </td>
+    <td>
+      <pre style="background-color:#f4f4f4; padding:10px; border:1px solid #ddd; border-radius:5px; font-family:monospace; font-size:14px; line-height:1.5;">
+THERE'S NO WAY IN THE WORLD YOU'D TURN SOMEONE IN NEED AWAY.
+TAKE A YOUNG, HOMELESS PERSON FOR EXAMPLE. YOU COULD BRING THEM
+IN FOR THE NIGHT. BECAUSE LET'S FACE IT OUT ON THE STREET ABSOLUTELY
+ANYTHING MIGHT HAPPEN. YOU COULD BE HELPING TO STOP SOMEONE BEING
+ROBBED, BEATEN UP OR EVEN WORSE. ABUSED. IT'S COLD AND LONELY OUT THERE
+THE THOUGHT OF IT MAKES YOU SHIVER. YOUNG PEOPLE NEED A HELPING HAND.
+THEY'RE HAVING A TOUGH TIME, BUT A SAFE, SECURE PLACE WOULD HELP.
+IT'S NOT REALLY YOUR PROBLEM. BUT YOU COULD STILL MAKE A DIFFERENCE.
+      </pre>
+    </td>
+  </tr>
+</table>
+
 ## Concept
 Two bounding boxes are considered inline if the y-coordinate of one box's vertical center lies within the top and bottom bounds of the other box.
 
