@@ -39,7 +39,7 @@ world :)
 <table>
   <tr>
     <td>
-      <img src="https://raw.githubusercontent.com/doctor-entropy/bbox-align/main/images/1191-receipt.jpg" alt="receipt" style="width:400px;"/>
+      <img src="/images/receipt.jpg" alt="receipt" style="width:400px;"/>
     </td>
     <td>
       <pre style="background-color:#f4f4f4; padding:10px; border:1px solid #ddd; border-radius:5px; font-family:monospace; font-size:14px; line-height:1.5;">
@@ -109,26 +109,6 @@ Jan 29 reading ( Actual )        5004               205
 Dec 30 reading ( Actual )       -4846               0
                                                     KWH JFMAMJJASON DJ AVG
 Total Usage CCF 30 Days         158                 2008              2009
-      </pre>
-    </td>
-  </tr>
-</table>
-
-<table>
-  <tr>
-    <td>
-      <img src="https://raw.githubusercontent.com/doctor-entropy/bbox-align/main/images/saying-on-wall.jpg" alt="saying" style="width:600px;"/>
-    </td>
-    <td>
-      <pre style="background-color:#f4f4f4; padding:10px; border:1px solid #ddd; border-radius:5px; font-family:monospace; font-size:14px; line-height:1.5;">
-THERE'S NO WAY IN THE WORLD YOU'D TURN SOMEONE IN NEED AWAY.
-TAKE A YOUNG, HOMELESS PERSON FOR EXAMPLE. YOU COULD BRING THEM
-IN FOR THE NIGHT. BECAUSE LET'S FACE IT OUT ON THE STREET ABSOLUTELY
-ANYTHING MIGHT HAPPEN. YOU COULD BE HELPING TO STOP SOMEONE BEING
-ROBBED, BEATEN UP OR EVEN WORSE. ABUSED. IT'S COLD AND LONELY OUT THERE
-THE THOUGHT OF IT MAKES YOU SHIVER. YOUNG PEOPLE NEED A HELPING HAND.
-THEY'RE HAVING A TOUGH TIME, BUT A SAFE, SECURE PLACE WOULD HELP.
-IT'S NOT REALLY YOUR PROBLEM. BUT YOU COULD STILL MAKE A DIFFERENCE.
       </pre>
     </td>
   </tr>
