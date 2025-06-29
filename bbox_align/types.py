@@ -1,11 +1,16 @@
-from .geometry import Number, Point, Line as GeometryLine
+from .geometry import (
+    Number,
+    Point,
+    Line as GeometryLine # noqa
+)
 from typing import Tuple, List, Optional, Union
 
-# ### Geometry related #######
+
+##### Geometry related #######
 Coords = Tuple[Number, Number]
 ###############################
 
-# ###### Line ################
+######## Relationshipd ########
 PointOfIntersections = List[
     List[Union[Point, None]]
 ]
@@ -15,11 +20,14 @@ PassThroughs = List[
 InLines = List[
     List[bool]
 ]
+#############################
+
+######## Line ########
 Line = List[int]
 Lines = List[Line]
-# ###########################
+######################
 
-# Vertex #####################
+######### Vertex ############
 Vertices = Tuple[
     Coords,
     Coords,
@@ -29,4 +37,3 @@ Vertices = Tuple[
 ]
 BBoxVertices = List[Vertices]
 #############################
-

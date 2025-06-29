@@ -114,9 +114,53 @@ Total Usage CCF 30 Days         158                 2008              2009
   </tr>
 </table>
 
-## Concept
+## Workings
 Two bounding boxes are considered inline if the y-coordinate of one box's vertical center lies within the top and bottom bounds of the other box.
+i.e `d <= D/2`. To prevent skewed bounding boxes from being inline, the slope difference must be within `5°`.
 
 <img src="https://raw.githubusercontent.com/doctor-entropy/bbox-align/main/images/parallel.png" alt="parallel" style="width:1000px;"/>
 
+If there are distortions, the above check fails. So we can find the Point of intersection (poi) instead and compute a harmonic mean score using
+1. `(d1 + d2)/2`
+2. absolute vertical distance between `m1` and `m2`.
+This gives a balanced vertical score.
+
+A bounding box is inline with another bounding box with lowest score.
+
 <img src="https://raw.githubusercontent.com/doctor-entropy/bbox-align/refs/heads/main/images/poi.png" alt="poi" style="width:1000px;"/>
+
+Any overlaps within a line are resolved also using harmonic mean score of perpendicular distance and vertical distance between overlapping bounding boxes.
+
+## Debugging
+To dig deeper into what bounding boxes are inline, you can use `bbox_align.process_with_meta_info` to get meta related informations and pretty print them using `bbox_align.pprint_matrix`
+
+```py
+# For the above example
+lines, inlines, passthroughs, pois = process_with_meta_info(vertices, endpoints)
+
+pprint_matrix(matrix=passthroughs, words=words, idxs=[51, 52, 57, 58])
+'''
+          Sales     Tax       $    2.53
+  Sales    True    True   False   False
+    Tax    True    True   False   False
+      $   False   False    True    True
+   2.53   False   False    True    True
+'''
+# points of intersections
+pprint_matrix(matrix=pois, words=words, idxs=[51, 52, 57, 58])
+'''
+                                Sales                Tax                  $               2.53
+             Sales               None      (26.9, 357.2)   (204.17, 347.35)   (200.76, 347.54)
+               Tax      (26.9, 357.2)               None   (218.02, 348.89)   (215.73, 348.99)
+                 $   (204.17, 347.35)   (218.02, 348.89)               None   (240.37, 351.37)
+              2.53   (200.76, 347.54)   (215.73, 348.99)   (240.37, 351.37)               None
+'''
+pprint_matrix(matrix=inlines, words=words, idxs=[51, 52, 57, 58])
+'''
+          Sales     Tax       $    2.53
+  Sales    True    True   False   False
+    Tax    True    True   False    True
+      $   False   False    True    True
+   2.53   False    True    True    True
+'''
+```

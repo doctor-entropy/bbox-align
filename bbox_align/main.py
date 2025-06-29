@@ -82,7 +82,7 @@ def resolution_score(overlapped_bbox: BoundingBox, bbox: BoundingBox) -> float:
         perpendicular_distance
     ])
 
-def resolve_overlaps(bboxes: List[BoundingBox], line: Line, words) -> Lines:
+def resolve_overlaps(bboxes: List[BoundingBox], line: Line) -> Lines:
 
     if not has_any_overlap(line, bboxes):
         return [line]
@@ -111,8 +111,8 @@ def resolve_overlaps(bboxes: List[BoundingBox], line: Line, words) -> Lines:
         else:
             second_line.append(idx)
 
-    first_line_resolved = resolve_overlaps(bboxes, first_line, words)
-    second_line_resolved = resolve_overlaps(bboxes, second_line, words)
+    first_line_resolved = resolve_overlaps(bboxes, first_line)
+    second_line_resolved = resolve_overlaps(bboxes, second_line)
 
     return first_line_resolved + second_line_resolved
 
@@ -133,7 +133,6 @@ def update_inlines(inlines: InLines, line: Line, resolved_lines: Lines):
 def get_lines(
     inlines: InLines,
     bboxes: List[BoundingBox],
-    words,
     allow_overlaps
 ) -> Lines:
 
@@ -147,7 +146,7 @@ def get_lines(
         line = get_line(inlines, next_idx)
 
         if not allow_overlaps and has_any_overlap(line, bboxes):
-            resolved_lines = resolve_overlaps(bboxes, line, words)
+            resolved_lines = resolve_overlaps(bboxes, line)
             # Update inlines as pass-by-reference
             update_inlines(inlines, line, resolved_lines)
             lines.extend(resolved_lines)
@@ -161,7 +160,6 @@ def get_lines(
 def process_with_meta_info(
     vertices: BBoxVertices,
     boundaries: List[Tuple[Number, Number]],
-    words,
     allow_overlaps: bool = False,
 ) -> Tuple[Lines, InLines, PassThroughs, PointOfIntersections]:
 
@@ -179,7 +177,7 @@ def process_with_meta_info(
 
     # inlines will get updated by pass-by-reference
     # in this step when resolving overalps in a line
-    lines = get_lines(inlines, bboxes, words, allow_overlaps)
+    lines = get_lines(inlines, bboxes, allow_overlaps)
     sorted_lines = sort(lines, bboxes, allow_overlaps)
 
     return sorted_lines, inlines, passthroughs, pois
