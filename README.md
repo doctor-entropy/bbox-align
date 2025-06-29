@@ -38,8 +38,8 @@ world :)
 
 <table>
   <tr>
-    <td>
-      <img src="https://raw.githubusercontent.com/doctor-entropy/bbox-align/main/images/receipt.jpg" alt="receipt" style="min-width:400px;" />
+    <td style="min-width:300px;">
+      <img src="https://raw.githubusercontent.com/doctor-entropy/bbox-align/main/images/receipt.jpg" alt="receipt" style="width:300px;" />
     </td>
     <td>
       <pre style="background-color:#f4f4f4; padding:10px; border:1px solid #ddd; border-radius:5px; font-family:monospace; font-size:14px; line-height:1.5;">
