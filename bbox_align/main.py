@@ -134,7 +134,6 @@ def update_inlines(inlines: InLines, line: Line, resolved_lines: Lines):
 def get_lines(
     inlines: InLines,
     bboxes: List[BoundingBox],
-    allow_overlaps
 ) -> Lines:
 
     n = len(inlines)
@@ -146,7 +145,7 @@ def get_lines(
         next_idx = next(idx for idx in range(n) if idx not in visited)
         line = get_line(inlines, next_idx)
 
-        if not allow_overlaps and has_any_overlap(line, bboxes):
+        if has_any_overlap(line, bboxes):
             resolved_lines = resolve_overlaps(bboxes, line)
             # Update inlines as pass-by-reference
             update_inlines(inlines, line, resolved_lines)
@@ -161,7 +160,6 @@ def get_lines(
 def process_with_meta_info(
     bounding_boxes: BBoxes,
     boundaries: BBox,
-    allow_overlaps: bool = False,
 ) -> Tuple[Lines, InLines, PassThroughs, PointOfIntersections]:
 
     try:
@@ -183,19 +181,18 @@ def process_with_meta_info(
 
     # inlines will get updated by pass-by-reference
     # in this step when resolving overalps in a line
-    lines = get_lines(inlines, bboxes, allow_overlaps)
-    sorted_lines = sort(lines, bboxes, allow_overlaps)
+    lines = get_lines(inlines, bboxes)
+    sorted_lines = sort(lines, bboxes)
 
     return sorted_lines, inlines, passthroughs, pois
 
 def process(
     bounding_boxes: BBoxes,
     boundaries: List[Tuple[Number, Number]],
-    allow_overlaps: bool = False
 ) -> Lines:
 
     lines, _, _, _ = process_with_meta_info(
-        bounding_boxes, boundaries, allow_overlaps
+        bounding_boxes, boundaries
     )
 
     return lines

@@ -17,9 +17,9 @@ def check_user_inputs(bounding_boxes: BBoxes, boundaries: BBox):
         p1, p2, p3, p4 = bbox
         if not (
             Point(*p1).is_left_of(Point(*p2)) and
-            Point(*p2).is_above(Point(*p3)) and
+            Point(*p2).is_below(Point(*p3)) and
             Point(*p3).is_right_of(Point(*p4)) and
-            Point(*p4).is_below(Point(*p1))
+            Point(*p4).is_above(Point(*p1))
         ):
             raise ValueError(
                 f"Bounding box at index {idx} has invalid orientation. "
@@ -31,9 +31,9 @@ def check_user_inputs(bounding_boxes: BBoxes, boundaries: BBox):
     p1, p2, p3, p4 = boundaries
     if not (
         Point(*p1).is_left_of(Point(*p2)) and
-        Point(*p2).is_above(Point(*p3)) and
+        Point(*p2).is_below(Point(*p3)) and
         Point(*p3).is_right_of(Point(*p4)) and
-        Point(*p4).is_below(Point(*p1))
+        Point(*p4).is_above(Point(*p1))
     ):
         raise ValueError(
             f"boundaries has invalid orientation. "
