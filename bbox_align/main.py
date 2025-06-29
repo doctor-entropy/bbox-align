@@ -89,9 +89,9 @@ def resolve_overlaps(bboxes: List[BoundingBox], line: Line, words) -> Lines:
 
     overlaps = get_overlaps(line, bboxes)
 
-    # Get the overlaps which have the largest height difference
+    # Get the overlaps which have the smallest height difference
     # This ensures better overlap resolution
-    (idx1, idx2) = max(
+    (idx1, idx2) = min(
         overlaps,
         key=lambda pair: abs(
             bboxes[pair[0]].midpoint.y - bboxes[pair[1]].midpoint.y
@@ -113,17 +113,6 @@ def resolve_overlaps(bboxes: List[BoundingBox], line: Line, words) -> Lines:
 
     first_line_resolved = resolve_overlaps(bboxes, first_line, words)
     second_line_resolved = resolve_overlaps(bboxes, second_line, words)
-
-    # print("line: ", line)
-    # print("words: ", [words[idx] for idx in line])
-    # print("remaining_indices: ", remaining_indices)
-    # print("remaining words: ", [words[idx] for idx in remaining_indices])
-    # first_line_words = [words[idx] for idx in first_line]
-    # second_line_words = [words[idx] for idx in second_line]
-    # first_line_resolved_words = [words[idx] for line in first_line_resolved for idx in line]
-    # second_line_resovled_words = [words[idx] for line in second_line_resolved for idx in line]
-    # print(f"Before {words[idx1]}, {words[idx2]}: {first_line_words}, {second_line_words}")
-    # print(f"After {words[idx1]}, {words[idx2]}: {first_line_resolved_words}, {second_line_resovled_words}")
 
     return first_line_resolved + second_line_resolved
 

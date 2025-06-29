@@ -15,17 +15,19 @@ from .geometry import Point, Line as GeometryLine
 from .bounding_box import BoundingBox
 
 
+SLOPE_DIFF_THRESHOLD = 5
+
 '''
 -------------           -------------
 -           -           -           -
 -   m1*.....-...........-.....*m2   -
--           -     l     -           -
+-           -     l1    -           -
 -------------           -------------
   rect1                      rect2
                        height=H
 
 'd' is the perpendicular distance between
-line 'l' and 'm2'.
+line 'l1' and 'm2'.
 
 m1 and m2 are the midpoints of the boxes shown above
 '''
@@ -36,7 +38,10 @@ def is_passing_through(
     l1 = GeometryLine(bbox1.midpoint, bbox1.approx_orientation)
     d = l1.distance_to_point(bbox2.midpoint)
     slope_diff = degrees(abs(bbox1.approx_orientation - bbox2.approx_orientation))
-    is_inline = d <= bbox2.average_height / 2 and slope_diff < 5
+    is_inline = (
+            d <= bbox2.average_height / 2
+        and slope_diff < SLOPE_DIFF_THRESHOLD
+    )
 
     return (is_inline, d)
 
@@ -216,8 +221,15 @@ def bboxes_overlapping(bbox1: BoundingBox, bbox2: BoundingBox) -> bool:
     return is_overlapping and percentage > 50
 
 
-def sort_line_horizontal(line: Line, bboxes: List[BoundingBox], allow_overlaps: bool) -> Line:
-    line_sorted = sorted(line, key=lambda idx: bboxes[idx].midpoint.x)
+def sort_line_horizontally(
+    line: Line,
+    bboxes: List[BoundingBox],
+    allow_overlaps: bool
+) -> Line:
+
+    line_sorted = sorted(
+        line, key=lambda idx: bboxes[idx].midpoint.x
+    )
 
     if not allow_overlaps:
         return line_sorted
@@ -250,7 +262,7 @@ def sort_lines_horizontally(
 ) -> Lines:
 
     return [
-        sort_line_horizontal(line, bboxes, allow_overlaps)
+        sort_line_horizontally(line, bboxes, allow_overlaps)
         for line in lines
     ]
 
