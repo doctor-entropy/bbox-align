@@ -15,11 +15,11 @@ import bbox_align
 
 vertices = [
     [ (0, 15), (10, 15), (10, 25), (0, 25) ], # world
-    [ (15, 15), (15, 15), (15, 25), (15, 25) ], # :)
+    [ (15, 15), (25, 15), (25, 25), (15, 25) ], # :)
     [ (0, 0), (10, 0), (10, 10), (0, 10) ], # hello
 ]
 words = ['world', ':)', 'hello']
-boundaries = [ (0, 0), (25, 0), (25, 50), (0, 50) ]
+boundaries = [ (0, 0), (25, 0), (25, 15), (0, 15) ]
 
 lines = bbox_align.process(vertices, boundaries)
 
