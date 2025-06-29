@@ -110,6 +110,7 @@ Dec 30 reading ( Actual )       -4846               0
                                                     KWH JFMAMJJASON DJ AVG
 Total Usage CCF 30 Days         158                 2008              2009
       </pre>
+* spacings computed differently
     </td>
   </tr>
 </table>
@@ -170,5 +171,6 @@ bbox_align.pprint_matrix(matrix=inlines, words=words, idxs=[51, 52, 57, 58])
 ## FAQs
 **1. Does this library do document layout analysis?**
 No. Document layout analysis is an upstream task. `bbox-align` only groups bounding boxes within a layout into logical lines.
-**2. Does this library compute spacings?**
+
+**2. Does this library compute spacings as well?**
 Not yet. But with enough requests and interests, I can implement it.

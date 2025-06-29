@@ -28,12 +28,12 @@ Lines = List[Line]
 ######################
 
 ######### Vertex ############
-Vertices = Tuple[
+BBox = Tuple[
     Coords,
     Coords,
     Coords,
     Coords,
     Optional[int],
 ]
-BBoxVertices = List[Vertices]
+BBoxes = List[BBox]
 #############################

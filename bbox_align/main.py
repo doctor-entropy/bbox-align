@@ -6,9 +6,9 @@ from .types import Point, Number, GeometryLine
 from .bounding_box import BoundingBox
 
 from .types import (
-    Vertices,
+    BBox,
+    BBoxes,
     Lines,
-    BBoxVertices,
     InLines,
     PassThroughs,
     PointOfIntersections
@@ -26,7 +26,7 @@ from .relationships import (
     sort,
 )
 
-def to_bbox_object(vertices: Vertices, idx: int) -> BoundingBox:
+def to_bbox_object(vertices: BBox, idx: int) -> BoundingBox:
 
     return BoundingBox(
         p1=vertices[0],
@@ -158,14 +158,41 @@ def get_lines(
     return lines
 
 def process_with_meta_info(
-    vertices: BBoxVertices,
+    bounding_boxes: BBoxes,
     boundaries: List[Tuple[Number, Number]],
     allow_overlaps: bool = False,
 ) -> Tuple[Lines, InLines, PassThroughs, PointOfIntersections]:
 
+    ######################### Check user inputs ############################
+    if not isinstance(bounding_boxes, list) or not all(
+        isinstance(bbox, list) and len(bbox) == 4 for bbox in bounding_boxes
+    ):
+        raise ValueError("bounding_boxes must be a list of 4-point lists.")
+
+    if not isinstance(boundaries, list) or not len(boundaries) == 4:
+        raise ValueError("boundaries must be a list of 4-points")
+
+    # Validate the orientation of each bounding box
+    for idx, bbox in enumerate(bounding_boxes):
+        try:
+            p1, p2, p3, p4 = bbox
+            if not (Point(*p1).is_left_of(Point(*p2)) and
+                    Point(*p2).is_above(Point(*p3)) and
+                    Point(*p3).is_right_of(Point(*p4)) and
+                    Point(*p4).is_below(Point(*p1))):
+                raise ValueError(
+                    f"Bounding box at index {idx} has invalid orientation. "
+                    f"Points must be in clockwise order: "
+                    f"top-left (p1), top-right (p2), bottom-right (p3), bottom-left (p4). "
+                    f"Provided points: p1={p1}, p2={p2}, p3={p3}, p4={p4}"
+                )
+        except ValueError as e:
+            raise ValueError(f"Input validation error: {e}")
+    # ######################################################################
+
     bboxes = [
         to_bbox_object(vertex, idx)
-        for idx, vertex in enumerate(vertices)
+        for idx, vertex in enumerate(bounding_boxes)
     ]
 
     _boundaries = [Point(*point) for point in boundaries]
@@ -183,13 +210,13 @@ def process_with_meta_info(
     return sorted_lines, inlines, passthroughs, pois
 
 def process(
-    vertices: BBoxVertices,
+    bounding_boxes: BBoxes,
     boundaries: List[Tuple[Number, Number]],
     allow_overlaps: bool = False
 ) -> Lines:
 
-    line, _, _, _ = process_with_meta_info(
-        vertices, boundaries, allow_overlaps
+    lines, _, _, _ = process_with_meta_info(
+        bounding_boxes, boundaries, allow_overlaps
     )
 
-    return line
+    return lines
