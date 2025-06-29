@@ -9,6 +9,7 @@ from .bounding_box import BoundingBox
 from .types import (
     BBox,
     BBoxes,
+    Boundaries,
     Lines,
     InLines,
     PassThroughs,
@@ -159,7 +160,7 @@ def get_lines(
 
 def process_with_meta_info(
     bounding_boxes: BBoxes,
-    boundaries: BBox,
+    boundaries: Boundaries,
 ) -> Tuple[Lines, InLines, PassThroughs, PointOfIntersections]:
 
     try:
@@ -188,7 +189,7 @@ def process_with_meta_info(
 
 def process(
     bounding_boxes: BBoxes,
-    boundaries: List[Tuple[Number, Number]],
+    boundaries: Boundaries,
 ) -> Lines:
 
     lines, _, _, _ = process_with_meta_info(

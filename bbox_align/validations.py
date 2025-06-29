@@ -1,8 +1,8 @@
-from .types import BBoxes, BBox
+from .types import BBoxes, Boundaries
 from .geometry import Point
 
 
-def check_user_inputs(bounding_boxes: BBoxes, boundaries: BBox):
+def check_user_inputs(bounding_boxes: BBoxes, boundaries: Boundaries):
 
     if not isinstance(bounding_boxes, list) or not all(
         isinstance(bbox, list) and len(bbox) == 4 for bbox in bounding_boxes

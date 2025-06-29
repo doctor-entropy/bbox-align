@@ -27,13 +27,13 @@ Line = List[int]
 Lines = List[Line]
 ######################
 
-######### Vertex ############
+######## User inputs #########
 BBox = Tuple[
     Coords,
     Coords,
     Coords,
     Coords,
-    Optional[int],
 ]
 BBoxes = List[BBox]
+Boundaries = List[Coords]
 #############################
