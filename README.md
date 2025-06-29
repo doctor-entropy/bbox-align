@@ -38,9 +38,11 @@ world :)
 
 <table>
   <tr>
-    <td style="min-width:300px;">
+    <td>
       <img src="https://raw.githubusercontent.com/doctor-entropy/bbox-align/main/images/receipt.jpg" alt="receipt" style="min-width:300px;" width="300" />
     </td>
+  </tr>
+  <tr>
     <td>
       <pre style="background-color:#f4f4f4; padding:10px; border:1px solid #ddd; border-radius:5px; font-family:monospace; font-size:14px; line-height:1.5;">
 MOD Pizza
