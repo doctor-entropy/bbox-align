@@ -118,3 +118,5 @@ Total Usage CCF 30 Days         158                 2008              2009
 Two bounding boxes are considered inline if the y-coordinate of one box's vertical center lies within the top and bottom bounds of the other box.
 
 <img src="https://raw.githubusercontent.com/doctor-entropy/bbox-align/main/images/parallel.png" alt="parallel" style="width:1000px;"/>
+
+<img src="https://raw.githubusercontent.com/doctor-entropy/bbox-align/main/images/poi.png" alt="poi" style="width:1000px;"/>
