@@ -119,4 +119,4 @@ Two bounding boxes are considered inline if the y-coordinate of one box's vertic
 
 <img src="https://raw.githubusercontent.com/doctor-entropy/bbox-align/main/images/parallel.png" alt="parallel" style="width:1000px;"/>
 
-<img src="https://raw.githubusercontent.com/doctor-entropy/bbox-align/main/images/poi.png" alt="poi" style="width:1000px;"/>
+<img src="https://raw.githubusercontent.com/doctor-entropy/bbox-align/refs/heads/main/images/poi.png" alt="poi" style="width:1000px;"/>
